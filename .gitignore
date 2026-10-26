@@ -1,0 +1,20 @@
+# Python environments (recreate with `uv sync`)
+.venv/
+video/body/.venv/
+validation_brian2/.venv/
+__pycache__/
+*.pyc
+
+# Public input data: download with the commands in README.md
+data/shiu_model/
+data/neuron_annotations.tsv
+
+# Large regenerable arrays (> 50 MB each); rerun `experiments.py screen reliability`
+results/screen/*.npy
+
+# Intermediate video frames and clips; rerun the video scripts
+video/build/
+
+# Local logs
+*.log
+MUJOCO_LOG.TXT

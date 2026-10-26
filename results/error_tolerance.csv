@@ -1,0 +1,36 @@
+model,title,bench,x50,color,marker
+deletion,Missing synapses,Sugar → MN9,20.508540372670808,#2a78d6,o
+deletion,Missing synapses,Bitter suppression,-1.0,#eb6834,s
+deletion,Missing synapses,Ir94e suppression,-1.0,#1baf7a,^
+deletion,Missing synapses,JO → aBN1,45.2029520295203,#eda100,D
+deletion,Missing synapses,JO → aDN1,13.82246376811594,#e87ba4,v
+input_trunc,Truncated dendrites,Sugar → MN9,19.700134770889488,#2a78d6,o
+input_trunc,Truncated dendrites,Bitter suppression,-1.0,#eb6834,s
+input_trunc,Truncated dendrites,Ir94e suppression,-1.0,#1baf7a,^
+input_trunc,Truncated dendrites,JO → aBN1,33.18352059925093,#eda100,D
+input_trunc,Truncated dendrites,JO → aDN1,17.030075187969924,#e87ba4,v
+output_trunc,Truncated axons,Sugar → MN9,23.565182829888712,#2a78d6,o
+output_trunc,Truncated axons,Bitter suppression,-1.0,#eb6834,s
+output_trunc,Truncated axons,Ir94e suppression,-1.0,#1baf7a,^
+output_trunc,Truncated axons,JO → aBN1,43.63636363636363,#eda100,D
+output_trunc,Truncated axons,JO → aDN1,14.477401129943502,#e87ba4,v
+false_pos,Spurious synapses,Sugar → MN9,,#2a78d6,o
+false_pos,Spurious synapses,Bitter suppression,,#eb6834,s
+false_pos,Spurious synapses,Ir94e suppression,,#1baf7a,^
+false_pos,Spurious synapses,JO → aBN1,,#eda100,D
+false_pos,Spurious synapses,JO → aDN1,,#e87ba4,v
+sign_flip,Random sign errors,Sugar → MN9,14.359903381642512,#2a78d6,o
+sign_flip,Random sign errors,Bitter suppression,8.116701336157028,#eb6834,s
+sign_flip,Random sign errors,Ir94e suppression,,#1baf7a,^
+sign_flip,Random sign errors,JO → aBN1,17.610921501706482,#eda100,D
+sign_flip,Random sign errors,JO → aDN1,8.626984126984127,#e87ba4,v
+nt_resample,Transmitter errors (calibrated),Sugar → MN9,13.271567796610167,#2a78d6,o
+nt_resample,Transmitter errors (calibrated),Bitter suppression,8.81396728558609,#eb6834,s
+nt_resample,Transmitter errors (calibrated),Ir94e suppression,-1.0,#1baf7a,^
+nt_resample,Transmitter errors (calibrated),JO → aBN1,,#eda100,D
+nt_resample,Transmitter errors (calibrated),JO → aDN1,11.916785714285712,#e87ba4,v
+weight_noise,Weight noise (mean 1),Sugar → MN9,1.8681619256017505,#2a78d6,o
+weight_noise,Weight noise (mean 1),Bitter suppression,1.049562505214746,#eb6834,s
+weight_noise,Weight noise (mean 1),Ir94e suppression,0.9425209394450362,#1baf7a,^
+weight_noise,Weight noise (mean 1),JO → aBN1,1.6914893617021276,#eda100,D
+weight_noise,Weight noise (mean 1),JO → aDN1,0.4514840182648402,#e87ba4,v

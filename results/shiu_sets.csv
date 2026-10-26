@@ -1,0 +1,21 @@
+cond,side,rate,n_active,MN9_left,MN9_right,aDN1_left,aDN1_right,aDN2_left,aDN2_right,aBN1_left,aBN1_right,connectome,MN9
+Shiu set (sugarR),left,50.0,317,12.125,14.5,0.0,0.0,0.0,0.0,0.0,0.0,intact,13.3125
+Shiu set (sugarR),left,100.0,381,48.25,62.625,0.0,0.0,0.0,0.0,0.0,0.0,intact,55.4375
+Shiu set (sugarR),left,150.0,408,54.125,78.125,0.0,0.0,0.0,0.0,0.0,0.0,intact,66.125
+Shiu set (sugarR),left,200.0,417,63.125,87.125,0.0,0.0,0.0,0.0,0.0,0.0,intact,75.125
+Shiu set (sugarR),left,300.0,450,67.0,102.75,0.0,0.0,0.0,0.0,0.0,0.0,intact,84.875
+Shiu set (sugarL),right,50.0,24,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,intact,0.0
+Shiu set (sugarL),right,100.0,168,2.125,3.75,0.0,0.0,0.0,0.0,0.0,0.0,intact,2.9375
+Shiu set (sugarL),right,150.0,299,30.0,27.625,0.0,0.0,0.0,0.0,0.0,0.0,intact,28.8125
+Shiu set (sugarL),right,200.0,351,48.5,37.875,0.0,0.0,0.0,0.0,0.0,0.0,intact,43.1875
+Shiu set (sugarL),right,300.0,365,60.125,44.75,0.0,0.0,0.0,0.0,0.0,0.0,intact,52.4375
+Shiu set (sugarR),left,50.0,317,12.125,14.5,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,13.3125
+Shiu set (sugarR),left,100.0,381,48.25,62.625,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,55.4375
+Shiu set (sugarR),left,150.0,408,54.125,78.125,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,66.125
+Shiu set (sugarR),left,200.0,417,63.125,87.125,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,75.125
+Shiu set (sugarR),left,300.0,450,67.0,102.75,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,84.875
+Shiu set (sugarL),right,50.0,24,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,0.0
+Shiu set (sugarL),right,100.0,168,2.125,3.75,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,2.9375
+Shiu set (sugarL),right,150.0,299,30.0,27.625,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,28.8125
+Shiu set (sugarL),right,200.0,351,48.5,37.875,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,43.1875
+Shiu set (sugarL),right,300.0,365,60.125,44.75,0.0,0.0,0.0,0.0,0.0,0.0,al_fix,52.4375

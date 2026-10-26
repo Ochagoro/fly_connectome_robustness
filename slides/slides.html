@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>鏡像テストと左右の非対称性</title>
+<!-- Design tokens: デジタル庁デザインシステム (MIT License, © 2023 デジタル庁). See dads/LICENSE. -->
+<link rel="stylesheet" href="dads/tokens.css">
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root {
+    --font: 'Noto Sans JP', 'Noto Sans CJK JP', sans-serif;
+    --ink: var(--color-neutral-solid-gray-900);
+    --ink-2: var(--color-neutral-solid-gray-700);
+    --ink-3: var(--color-neutral-solid-gray-600);
+    --line: var(--color-neutral-solid-gray-200);
+    --line-strong: var(--color-neutral-solid-gray-420);
+    --key: var(--color-primitive-blue-900);
+    --key-bg: var(--color-primitive-blue-50);
+    --surface: var(--color-neutral-solid-gray-50);
+    --left: var(--color-primitive-blue-800);
+    --right: var(--color-primitive-orange-800);
+    --fixed: var(--color-primitive-green-700);
+    --ok: var(--color-primitive-green-800);
+    --ok-bg: var(--color-primitive-green-50);
+    --ng: var(--color-primitive-red-800);
+    --ng-bg: var(--color-primitive-red-50);
+    --warn: var(--color-primitive-yellow-1000);
+    --warn-bg: var(--color-primitive-yellow-50);
+    --warn-line: var(--color-primitive-yellow-700);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: var(--font); color: var(--ink); font-weight: 400;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact;
+         counter-reset: main appx; }
+  b, strong, h1, h2, h3, th { font-weight: 700; }
+
+  /* ---------- slide frame ---------- */
+  .slide { position: relative; width: 1280px; height: 720px; overflow: hidden; background: #fff;
+           padding: 44px 64px 0 64px; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .slide.main { counter-increment: main; }
+  .slide.appx { counter-increment: appx; }
+  .hd { margin-bottom: 24px; }
+  .eyebrow { font-size: 16px; line-height: 1.7; letter-spacing: 0.02em; font-weight: 700; color: var(--key); }
+  .hd h2 { font-size: 32px; line-height: 1.5; letter-spacing: 0.01em; margin-top: 2px; }
+  .ft { position: absolute; left: 64px; right: 64px; bottom: 18px; display: flex; justify-content: space-between;
+        align-items: flex-end; gap: 32px; border-top: 1px solid var(--line); padding-top: 8px;
+        font-size: 14px; line-height: 1.5; letter-spacing: 0.02em; color: var(--ink-3); }
+  .ft .src { max-width: 1000px; }
+  .ft .pg { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .main .ft .pg::after { content: counter(main); }
+  .appx .ft .pg::after { content: "付録 " counter(appx); }
+
+  /* ---------- type scale (DADS Std) ---------- */
+  .t45 { font-size: 45px; line-height: 1.4; letter-spacing: 0.01em; }
+  .t36 { font-size: 36px; line-height: 1.4; letter-spacing: 0.01em; }
+  .t32 { font-size: 32px; line-height: 1.5; letter-spacing: 0.01em; }
+  .t28 { font-size: 28px; line-height: 1.5; letter-spacing: 0.01em; }
+  .t24 { font-size: 24px; line-height: 1.5; letter-spacing: 0.02em; }
+  .t20 { font-size: 20px; line-height: 1.6; letter-spacing: 0.02em; }
+  .t18 { font-size: 18px; line-height: 1.6; letter-spacing: 0.02em; }
+  .t16 { font-size: 16px; line-height: 1.7; letter-spacing: 0.02em; }
+  .b { font-weight: 700; }
+  .muted { color: var(--ink-2); }
+  .c-left { color: var(--left); } .c-right { color: var(--right); } .c-fixed { color: var(--fixed); }
+  .c-key { color: var(--key); } .c-ng { color: var(--ng); } .c-ok { color: var(--ok); }
+  .num { font-variant-numeric: tabular-nums; }
+  i.v { font-style: italic; }
+
+  /* ---------- layout ---------- */
+  .row { display: flex; gap: 32px; }
+  .col { display: flex; flex-direction: column; gap: 16px; }
+  .grow { flex: 1 1 0; min-width: 0; }
+  .stack-8 > * + * { margin-top: 8px; }
+  .stack-16 > * + * { margin-top: 16px; }
+  .stack-24 > * + * { margin-top: 24px; }
+  figure { margin: 0; }
+  figure img { display: block; }
+  figcaption { font-size: 16px; line-height: 1.7; letter-spacing: 0.02em; color: var(--ink-2); margin-top: 4px; }
+
+  /* ---------- components ---------- */
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 20px 24px; background: #fff; }
+  .card.key { background: var(--key-bg); border-color: var(--key-bg); }
+  .card.gray { background: var(--surface); border-color: var(--surface); }
+  .card h3 { font-size: 20px; line-height: 1.6; letter-spacing: 0.02em; margin-bottom: 4px; }
+  .note { border-left: 4px solid var(--key); padding: 4px 0 4px 16px; }
+  ul.list { list-style: none; }
+  ul.list > li { position: relative; padding-left: 20px; }
+  ul.list > li + li { margin-top: 10px; }
+  ul.list > li::before { content: ""; position: absolute; left: 2px; top: 0.72em; width: 8px; height: 8px;
+                         background: var(--ink-2); border-radius: 50%; }
+  ol.qs { list-style: none; counter-reset: q; }
+  ol.qs > li { counter-increment: q; position: relative; padding-left: 52px; min-height: 40px; }
+  ol.qs > li + li { margin-top: 16px; }
+  ol.qs > li::before { content: counter(q); position: absolute; left: 0; top: 0; width: 36px; height: 36px;
+                       border-radius: 4px; background: var(--key); color: #fff; font-weight: 700;
+                       font-size: 20px; line-height: 36px; text-align: center; }
+  .kpis { display: flex; gap: 16px; }
+  .kpi { flex: 1 1 0; border-top: 4px solid var(--key); padding-top: 8px; }
+  .kpi .v { font-size: 36px; line-height: 1.3; font-weight: 700; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+  .kpi .l { font-size: 16px; line-height: 1.6; letter-spacing: 0.02em; color: var(--ink-2); }
+  .kpi.left { border-top-color: var(--left); } .kpi.right { border-top-color: var(--right); }
+  .kpi.fixed { border-top-color: var(--fixed); } .kpi.gray { border-top-color: var(--line-strong); }
+  .tag { display: inline-block; font-size: 14px; line-height: 1.5; font-weight: 700; letter-spacing: 0.02em;
+         padding: 2px 8px; border-radius: 4px; border: 1px solid currentColor; }
+  .arrow { font-size: 28px; color: var(--ink-3); line-height: 1; }
+
+  /* tables */
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; vertical-align: middle; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  thead th { background: var(--surface); border-bottom: 1px solid var(--line-strong); font-size: 16px;
+             line-height: 1.6; letter-spacing: 0.02em; color: var(--ink); }
+  td.r, th.r { text-align: right; } td.c, th.c { text-align: center; }
+  table.t20 td { font-size: 20px; line-height: 1.5; }
+  table.t18 td { font-size: 18px; line-height: 1.5; }
+  table.t16 td { font-size: 16px; line-height: 1.5; }
+  table.t16 td, table.t16 th { padding: 6px 10px; }
+  tr.total td { border-top: 1px solid var(--line-strong); border-bottom: none; font-weight: 700; }
+  .ok { color: var(--ok); font-weight: 700; }
+  .ng { color: var(--ng); font-weight: 700; }
+  /* rescue matrix */
+  table.matrix td.m { text-align: center; font-weight: 700; font-size: 20px; width: 92px; }
+  table.matrix td.m.y { background: var(--ok-bg); color: var(--ok); }
+  table.matrix td.m.n { background: var(--ng-bg); color: var(--ng); }
+  table.matrix td, table.matrix th { border-bottom: 2px solid #fff; }
+  table.matrix thead th { border-bottom: 2px solid #fff; text-align: center; }
+  table.matrix td.lab { font-size: 18px; line-height: 1.45; padding-left: 0; }
+  table.matrix td.score { font-size: 24px; font-weight: 700; text-align: right; padding-right: 0; }
+
+  /* flow diagram */
+  .flow { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+  .flow .box { border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 16px; font-size: 18px; line-height: 1.5; letter-spacing: 0.02em; }
+  .flow .box.hot { border: 2px solid var(--right); }
+  .flow .box.end { background: var(--surface); border-color: var(--surface); }
+  .flow .down { text-align: center; font-size: 18px; line-height: 1.2; color: var(--ink-3); }
+
+  /* placeholder */
+  .ph { border: 2px dashed var(--warn-line); background: var(--warn-bg); border-radius: 8px; padding: 16px 20px; }
+  .ph-label { color: var(--warn); font-weight: 700; }
+
+  /* title slide */
+  .title-wrap { display: flex; gap: 48px; align-items: center; height: 560px; }
+  .title-wrap h1 { font-size: 45px; line-height: 1.4; letter-spacing: 0.01em; }
+  .rule { width: 64px; height: 4px; background: var(--key); }
+  /* appendix tables */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  dl.gloss { display: grid; grid-template-columns: 220px 1fr; column-gap: 24px; }
+  dl.gloss dt { font-weight: 700; font-size: 18px; line-height: 1.5; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  dl.gloss dd { font-size: 18px; line-height: 1.5; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  ol.refs { padding-left: 28px; }
+  ol.refs li { font-size: 16px; line-height: 1.6; letter-spacing: 0.02em; }
+  ol.refs li + li { margin-top: 4px; }
+  table.nw td.r { white-space: nowrap; }
+  .mono { font-family: 'Noto Sans Mono CJK JP', monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+
+<!-- =========================================================== 1 TITLE -->
+<section class="slide main" id="s-title">
+  <div class="title-wrap">
+    <div class="grow stack-24">
+      <p class="eyebrow">計算神経科学・1 日研究の報告</p>
+      <h1>鏡像テストで見つかった、<br>ハエ全脳シミュレーションを<br>狂わせる左右の非対称性</h1>
+      <div class="rule"></div>
+      <p class="t20 muted">公開された全脳モデル（Shiu ら 2024, <i>Nature</i>）を右半球から動かすと、実験で確かめられた 6 つの予測がすべて失敗した。原因は配線図の左右の非対称性（おそらく再構成の誤り）だった。</p>
+      <p class="t18"><span class="b">Kazushi Takehana</span><br><span class="muted">2026 年 10 月 27 日</span></p>
+    </div>
+    <figure style="width:440px">
+      <img src="img/fly_extension.png" alt="口吻を伸ばすショウジョウバエの 3D 描画" style="width:440px;height:330px;object-fit:cover;border-radius:8px">
+      <figcaption>口吻（こうふん）を伸ばすショウジョウバエ。研究動画の 3D 描画より</figcaption>
+    </figure>
+  </div>
+  <footer class="ft"><span class="src">配線図：FlyWire v783（Dorkenwald ら 2024; Schlegel ら 2024）。モデル：Shiu ら 2024 を GPU で再実装。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 2 BACKGROUND -->
+<section class="slide main" id="s-background">
+  <header class="hd"><p class="eyebrow">背景</p><h2>配線図（コネクトーム）だけで、脳の働きを予測できる時代になった</h2></header>
+  <div class="row">
+    <div class="grow stack-24">
+      <p class="t20"><span class="b">コネクトーム</span>＝脳のすべてのニューロンとシナプスの配線図。電子顕微鏡画像から自動検出と人手の校正で再構成する。</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v">138,639</div><div class="l">ニューロン（個）</div></div>
+        <div class="kpi"><div class="v">15,091,983</div><div class="l">結合（本）</div></div>
+        <div class="kpi"><div class="v">54,492,922</div><div class="l">シナプス（個）</div></div>
+      </div>
+      <p class="t16 muted" style="margin-top:8px">ショウジョウバエ成虫の全脳配線図 FlyWire v783</p>
+      <div class="card key">
+        <h3>Shiu ら（2024, <i>Nature</i>）の全脳モデル</h3>
+        <p class="t20">配線図からそのままスパイキングモデルを作る。自由パラメータは 1 つ（<i>w</i><sub>syn</sub> = 0.275 mV）だけ。それでも、実験で確かめられる予測を出した。</p>
+      </div>
+    </div>
+    <div style="width:420px" class="stack-16">
+      <div class="card">
+        <h3>ただし、配線図は「測定」であり誤りを含む</h3>
+        <ul class="list t18" style="margin-top:8px">
+          <li>シナプスの見落とし・余分な検出</li>
+          <li>神経突起の途切れ（再構成不足）</li>
+          <li>伝達物質の誤判定（画像からの AI 予測）<br><span class="muted">→ 興奮か抑制か、の符号が逆になる</span></li>
+        </ul>
+      </div>
+      <p class="t20 b">こうした誤りが、シミュレーションの予測をどれだけ狂わせるかは、まだ測られていない。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">出典：Dorkenwald ら 2024 <i>Nature</i>; Schlegel ら 2024 <i>Nature</i>; Shiu ら 2024 <i>Nature</i>; Eckstein ら 2024 <i>Cell</i>（伝達物質の予測）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 3 QUESTION -->
+<section class="slide main" id="s-question">
+  <header class="hd"><p class="eyebrow">問い</p><h2>同じ実験を「右半球」からやっても、同じ答えになるか</h2></header>
+  <div class="row" style="align-items:flex-start">
+    <div class="grow stack-24">
+      <p class="t24">ハエの脳は左右が鏡像の関係にあり、同じ細胞タイプが左右に 1 組ずつある。<br><span class="b">生物学を正しく反映した予測なら、右から刺激しても同じ答えになるはず</span>。</p>
+      <div class="row" style="gap:16px;align-items:center">
+        <div class="card grow" style="border-color:var(--left);border-width:2px">
+          <p class="t18 b c-left">左半球から刺激</p>
+          <p class="t18">これまでの検証（Shiu ら）</p>
+        </div>
+        <div class="t28 b muted">＝？</div>
+        <div class="card grow" style="border-color:var(--right);border-width:2px">
+          <p class="t18 b c-right">右半球から刺激</p>
+          <p class="t18">本研究の「鏡像テスト」</p>
+        </div>
+      </div>
+      <p class="t18 muted">鏡像テストは、追加の実験データも新しい仮定も要らない「対照実験」として使える。</p>
+    </div>
+    <div style="width:480px">
+      <ol class="qs t20">
+        <li>右から刺激しても、実験で確かめられた 6 つの予測は再現するか</li>
+        <li>再現しないなら、配線図のどんな左右差が原因か</li>
+        <li>配線図の誤りの種類ごとに、予測はどれだけ壊れるか</li>
+        <li>全感覚タイプで調べると、左右の不一致はどれほどあるか</li>
+      </ol>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">鏡像テスト：刺激と読み出しを細胞タイプと半球で定義し、左右を入れ替えて同じ実験を行う。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 4 METHODS -->
+<section class="slide main" id="s-methods">
+  <header class="hd"><p class="eyebrow">方法</p><h2>公開モデルを GPU で再実装し、6 つのベンチマークを左右で実行</h2></header>
+  <div class="row">
+    <div style="width:470px" class="stack-16">
+      <div class="card gray">
+        <h3>モデル：LIF（漏れ積分発火）ニューロン</h3>
+        <p class="t18">入力で膜電位が上がり、しきい値を超えると発火する。結合の強さ＝シナプス数 × <i>w</i><sub>syn</sub>。興奮か抑制かは、予測された伝達物質で決まる（GABA・グルタミン酸＝抑制、それ以外＝興奮）。</p>
+      </div>
+      <div class="card gray">
+        <h3>GPU 実装（PyTorch, RTX 5070 Ti）</h3>
+        <p class="t18">1 秒の試行が約 0.2 秒。元の Brian 2 実装とニューロンごとの発火率が一致（3 条件で <i>r</i> ≥ 0.999）。</p>
+      </div>
+      <p class="t16"><span class="b">刺激は細胞タイプ単位</span>：左の砂糖 GRN は LB3b・LB3c の 33 個すべて、JO は 229 個。Shiu らが選んだ組（砂糖 21 個、JO-CE 70 個）とは違う。</p>
+    </div>
+    <div class="grow">
+      <p class="t18 b" style="margin-bottom:8px">6 つのベンチマーク（Shiu らが実験で確かめた予測）</p>
+      <table class="t18">
+        <thead><tr><th>刺激する感覚ニューロン</th><th>読み出すニューロン</th><th class="r">再現の基準</th></tr></thead>
+        <tbody>
+          <tr><td>砂糖 GRN</td><td>MN9 が発火</td><td class="r">&gt; 20 Hz</td></tr>
+          <tr><td>砂糖＋苦味 GRN</td><td>MN9 が抑制される</td><td class="r">&gt; 50%</td></tr>
+          <tr><td>砂糖＋Ir94e GRN</td><td>MN9 が抑制される</td><td class="r">&gt; 50%</td></tr>
+          <tr><td>JO</td><td>aBN1（同じ側）</td><td class="r">&gt; 20 Hz</td></tr>
+          <tr><td>JO</td><td>aDN1（反対側）</td><td class="r">&gt; 10 Hz</td></tr>
+          <tr><td>JO</td><td>aDN2（反対側）</td><td class="r">&gt; 10 Hz</td></tr>
+        </tbody>
+      </table>
+      <p class="t16 muted" style="margin-top:12px"><b>GRN</b>＝味覚受容ニューロン　<b>MN9</b>＝口吻を伸ばす運動ニューロン<br><b>JO</b>＝触角の機械感覚ニューロン（ジョンストン器官）<br><b>aBN1・aDN1・aDN2</b>＝触角そうじ（グルーミング）を起こすニューロン</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">刺激：味覚 100 Hz、JO 150 Hz、各 8〜10 試行（1 秒）。暴走＝2,000 個を超えるニューロンが発火。抑制率＝1 − MN9（砂糖＋苦味など）÷ MN9（砂糖のみ）。詳細は付録 1・2・4。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 5 RESULT 1 -->
+<section class="slide main" id="s-result1">
+  <header class="hd"><p class="eyebrow">結果 1　鏡像テスト</p><h2>左からは 6 つすべて再現、右からは 1 つも再現しない</h2></header>
+  <div class="row">
+    <div class="grow">
+      <table class="t20">
+        <thead><tr><th>ベンチマーク</th><th class="r c-left">左から刺激</th><th class="r c-right">右から刺激</th></tr></thead>
+        <tbody>
+          <tr><td>砂糖 GRN → MN9</td><td class="r"><span class="ok">○</span> 58 Hz</td><td class="r"><span class="ng">×</span> 0.4 Hz（暴走）</td></tr>
+          <tr><td>苦味で抑制</td><td class="r"><span class="ok">○</span> 89%</td><td class="r"><span class="ng">×</span></td></tr>
+          <tr><td>Ir94e で抑制</td><td class="r"><span class="ok">○</span> 78%</td><td class="r"><span class="ng">×</span></td></tr>
+          <tr><td>JO → aBN1（同じ側）</td><td class="r"><span class="ok">○</span> 68 Hz</td><td class="r"><span class="ng">×</span> 10.5 Hz</td></tr>
+          <tr><td>JO → aDN1（反対側）</td><td class="r"><span class="ok">○</span> 29 Hz</td><td class="r"><span class="ng">×</span> 0 Hz</td></tr>
+          <tr><td>JO → aDN2（反対側）</td><td class="r"><span class="ok">○</span> 33 Hz</td><td class="r"><span class="ng">×</span> 0 Hz</td></tr>
+          <tr class="total"><td>再現できた数</td><td class="r c-left t24">6 / 6</td><td class="r c-right t24">0 / 6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure style="width:540px">
+      <img src="img/mn9_curve.png" alt="砂糖 GRN の刺激頻度と MN9 の発火率。左は 50 Hz 以上で強く発火、右はほとんど発火しない" style="width:540px">
+      <figcaption>刺激を強めても、右からでは MN9 がほとんど発火しない</figcaption>
+    </figure>
+  </div>
+  <footer class="ft"><span class="src">○＝再現、×＝不再現（基準は前のスライド）。表：各 8〜10 試行の平均。図：results/mirror_benchmarks.csv（MN9 は左右 2 個の平均）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 6 RUNAWAY -->
+<section class="slide main" id="s-runaway">
+  <header class="hd"><p class="eyebrow">結果 1　鏡像テスト</p><h2>右の砂糖ニューロンを刺激すると、脳全体が暴走する</h2></header>
+  <div class="row">
+    <div style="width:440px" class="stack-8">
+      <p class="t18 b c-left">左から刺激：発火 412 個</p>
+      <img src="img/brain_left.png" alt="左から刺激した脳の活動（静か）" style="width:440px;height:196px;border-radius:4px">
+      <p class="t18 b c-right" style="margin-top:12px">右から刺激：発火 8,612 個（21 倍）</p>
+      <img src="img/brain_right.png" alt="右から刺激した脳の活動（全体が発火）" style="width:440px;height:196px;border-radius:4px">
+    </div>
+    <div class="grow stack-16">
+      <figure>
+        <img src="img/recruit_time.png" alt="刺激開始からの累積発火ニューロン数。右の 3 試行はそれぞれ異なる時刻に急増" style="width:580px">
+      </figure>
+      <ul class="list t18">
+        <li>暴走の始まりは試行ごとに 59, 135, 414 ms とばらつく。それまでは左と似た応答</li>
+        <li>元の Brian 2 でも同じ暴走（刺激ニューロンを除き 8,742 個、MN9 0.55 Hz）→ 実装の誤りではない</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">左：研究動画の一場面（脳を正面から見た図、明るいほど発火が多い）。右：刺激 100 Hz の 3 試行。発火数は刺激 100 Hz での試行平均。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 7 CAUSE 1 -->
+<section class="slide main" id="s-cause1">
+  <header class="hd"><p class="eyebrow">非対称性 1　入力側（おそらく再構成不足）</p><h2>右の味覚ニューロンは、出力シナプスが左の半分しかない</h2></header>
+  <div class="row" style="gap:32px">
+    <div style="width:520px" class="stack-8">
+      <img src="img/syn_ratio.png" alt="右÷左の出力シナプス数の比。砂糖 0.47、苦味 0.64、Ir94e 0.73、水 0.36、JO 1.18" style="width:520px">
+      <p class="t18">砂糖 GRN 1 個あたり<span class="c-right b">右 125</span> / <span class="c-left b">左 265</span>。総数は <span class="c-left b">左 8,800</span>（33 個）、<span class="c-right b">右 3,000</span>（24 個）。触角の JO には不足がない。</p>
+    </div>
+    <div class="grow stack-8">
+      <img src="img/deletion.png" alt="左の砂糖 GRN のシナプスを抜いたときの MN9 発火率。3,000 個付近で右の実測と一致" style="width:580px">
+      <p class="t18">左からシナプスをランダムに抜くと、5,000 個未満で MN9 が急落。右と同じ 3,000 個では 1〜10 Hz で、<span class="b">右の実測 1.3 Hz と一致</span>。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">右図：触角葉の符号補正あり、100 Hz、3 回のランダム削除（線＝平均、帯＝範囲）。右の実測（◆）も同じ補正のもとでの値。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 8 CAUSE 2 -->
+<section class="slide main" id="s-cause2">
+  <header class="hd"><p class="eyebrow">非対称性 2　出力側（おそらく再構成不足）</p><h2>読み出しニューロン aBN1 は、右の入力が左の 4 分の 1</h2></header>
+  <div class="row" style="gap:48px">
+    <figure style="width:520px">
+      <img src="img/abn1.png" alt="aBN1 の入力シナプス：左 1,833、右 459。JO からの直接入力：左 103、右 35" style="width:520px">
+    </figure>
+    <div class="grow stack-24">
+      <div class="kpis">
+        <div class="kpi left"><div class="v c-left">68 Hz</div><div class="l">左：JO → aBN1</div></div>
+        <div class="kpi right"><div class="v c-right">10.5 Hz</div><div class="l">右：JO → aBN1</div></div>
+      </div>
+      <ul class="list t20">
+        <li>aBN1（触角そうじのニューロン）への入力シナプス：<span class="c-left b">左 1,833</span>、<span class="c-right b">右 459</span>（0.25 倍）</li>
+        <li>JO から aBN1 への直接シナプス：<span class="c-left b">左 103</span>、<span class="c-right b">右 35</span></li>
+        <li>刺激する JO 側には不足がない（1 個あたり 1.18 倍）</li>
+      </ul>
+      <p class="note t20">非対称性 1 が「入力側」の不足なら、こちらは<span class="b">「出力側（読み出し）」の不足</span>。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">シナプス数は FlyWire v783 の結合表から集計。JO 刺激 150 Hz。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 9 CAUSE 3a -->
+<section class="slide main" id="s-cause3">
+  <header class="hd"><p class="eyebrow">非対称性 3　伝達物質の予測</p><h2>「セロトニン」と予測された触角葉の局所ニューロンが、暴走を広げる</h2></header>
+  <div class="row" style="gap:40px">
+    <div style="width:440px" class="stack-16">
+      <div>
+        <p class="t16 b muted" style="margin-bottom:8px">右から刺激したときの活動の広がり方</p>
+        <div class="flow">
+          <div class="box">右の砂糖 GRN</div>
+          <div class="down">↓</div>
+          <div class="box">味覚の介在ニューロン（左と同じ経路）</div>
+          <div class="down">↓　数十〜数百 ms 後</div>
+          <div class="box hot"><span class="b">触角葉の局所ニューロン</span><br>lLN2T_b / c / e（「セロトニン」と予測）</div>
+          <div class="down">↓</div>
+          <div class="box end b">脳全体に広がる（暴走）</div>
+        </div>
+      </div>
+      <p class="t16 muted">触角葉に入るセロトニン細胞は、本来は片側 1 個の CSD ニューロンだけ（局所ニューロンではない）。</p>
+    </div>
+    <div class="grow stack-8">
+      <img src="img/nt_conf.png" alt="触角葉の局所ニューロンの伝達物質予測の確信度。セロトニン予測 40 個は中央値 0.35 で、GABA の 0.52 より低い" style="width:560px">
+      <ul class="list t18">
+        <li>「セロトニン」と予測された 40 個は確信度が低い（中央値 0.35、GABA は 0.52）</li>
+        <li>モデルはセロトニンを興奮性として扱う<br>→ <span class="b">本来ブレーキ役の細胞が、モデルではアクセルに</span>（おそらく誤判定）</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">確信度：FlyWire の伝達物質予測（Eckstein ら 2024）。触角葉の局所ニューロンを、予測された伝達物質ごとに表示（横線＝中央値）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 10 CAUSE 3b -->
+<section class="slide main" id="s-alfix">
+  <header class="hd"><p class="eyebrow">非対称性 3　伝達物質の予測</p><h2>その 40 個だけを抑制性にすると、暴走が消える</h2></header>
+  <div class="row" style="gap:40px">
+    <figure style="width:560px">
+      <img src="img/alfix_recruit.png" alt="右・公開版は約 1 万個まで増えるが、40 個を補正すると数百個にとどまる" style="width:560px">
+    </figure>
+    <div class="grow stack-24">
+      <div class="kpis">
+        <div class="kpi right"><div class="v c-right">8,680 個</div><div class="l">右・公開版の発火数</div></div>
+        <div class="kpi fixed"><div class="v c-fixed">236 個</div><div class="l">40 個を補正した後</div></div>
+      </div>
+      <p class="t20">左のベンチマークは変わらない。</p>
+      <div class="card gray">
+        <h3>一律に直すと、別のものが壊れる</h3>
+        <p class="t18">セロトニン予測の全 2,201 個を抑制性にすると、暴走は消えるが<span class="b">左の苦味抑制が消える</span>。左の苦味 GRN の 7/21 個がセロトニン予測のため。</p>
+        <p class="t18" style="margin-top:8px">同じ細胞タイプでも左右で予測が違う：苦味 GRN のセロトニン予測は<span class="c-left b">左 7/21</span>、<span class="c-right b">右 19/21</span>。</p>
+      </div>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">図：各 3 試行の平均、砂糖 100 Hz。発火数は results/rescue.csv（各条件の試行平均）。補正の定義は付録 7。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== NEW: ENTRY + AMPLIFIER -->
+<section class="slide main" id="s-entry">
+  <header class="hd"><p class="eyebrow">新しい発見　暴走のしくみ</p><h2>暴走には「入口」となる 1 個と、「増幅器」の 40 個の両方が要る</h2></header>
+  <div class="row" style="gap:32px">
+    <div style="width:560px" class="stack-8">
+      <p class="t18 b">右の砂糖 GRN を 1 個ずつ除いて刺激（24 通り）</p>
+      <img src="img/leave_one_out.png" alt="右の砂糖 GRN 24 個を 1 個ずつ除いて刺激。LB3b の 1 個を除いたときだけ発火数が 58 個に下がる" style="width:560px">
+      <p class="t16 muted">除いたのは LB3b の 1 個（FlyWire 720575940629884119）。8,522 → 58 個。活動数は試行数などで多少変わる（8,522〜8,680）。</p>
+    </div>
+    <div class="grow stack-16">
+      <div class="card" style="border:2px solid var(--right)">
+        <h3>① 入口：右の LB3b 1 個</h3>
+        <p class="t18">出力 154 シナプスのうち 22 個を触角葉の局所ニューロン il3LN6 に出す。左の LB3b（13 個）からは最大でも 3 個。</p>
+      </div>
+      <div class="card gray">
+        <h3>② 増幅器：「セロトニン」と予測された 40 個</h3>
+        <p class="t18">触角葉の局所ニューロン、左右に 20 個ずつ。増幅器は両側にあるので、右だけ暴走するのは右の入口のため。</p>
+      </div>
+      <p class="note t18">どちらか一方を除けば暴走は消える。シナプス不足だけでは暴走しない（左の出力を 90% 削っても最大 418 個）。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">公開版の配線図、砂糖 100 Hz。Shiu らの右の組 9 個（元の 10 個のうち 9 個、この 1 個を含まない）は暴走せず、150 Hz 以上で MN9 を動かす（付録 5）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 11 RESCUE -->
+<section class="slide main" id="s-rescue">
+  <header class="hd"><p class="eyebrow">補正実験（十分性の確認）</p><h2>3 つの非対称性を左に合わせると、右でも 6 つのうち 4 つが回復する</h2></header>
+  <table class="matrix">
+    <thead><tr><th style="text-align:left;background:#fff"></th><th>砂糖</th><th>苦味</th><th>Ir94e</th><th>aBN1</th><th>aDN1</th><th>aDN2</th><th class="r" style="background:#fff">再現数</th></tr></thead>
+    <tbody>
+      <tr><td class="lab"><span class="c-left b">左</span>・公開版</td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="score c-left">6/6</td></tr>
+      <tr><td class="lab"><span class="c-right b">右</span>・公開版</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="score c-right">0/6</td></tr>
+      <tr><td class="lab">＋触角葉の符号補正（40 個）</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="score">0/6</td></tr>
+      <tr><td class="lab">＋入力シナプス補正<br><span class="t16 muted">砂糖 ×2.12、苦味 ×1.57、Ir94e ×1.38</span></td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="m n">×</td><td class="m n">×</td><td class="m n">×</td><td class="score">3/6</td></tr>
+      <tr><td class="lab">＋読み出し補正<br><span class="t16 muted">aBN1 の入力 ×3.99（MN9 の入力も ×1.06）</span></td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="m y">○</td><td class="m n">×</td><td class="m n">×</td><td class="score c-fixed">4/6</td></tr>
+      <tr><td class="lab t16 muted">最終段の値</td><td class="c t16">47 Hz</td><td class="c t16">85%</td><td class="c t16">93%</td><td class="c t16">74 Hz</td><td class="c t16" colspan="2">3 Hz</td><td></td></tr>
+    </tbody>
+  </table>
+  <p class="note t18" style="margin-top:16px">反対側の aDN1・aDN2 は回復しない（3 Hz）。全補正後も右の砂糖刺激は左より多くのニューロンを動かす（1,044 対 429）→ <span class="b">まだ特定できていない左右差が残る</span>。</p>
+  <footer class="ft"><span class="src">補正は右半球に累積的に適用。左を基準にした「十分性」の確認で、どちらの半球が正しいかは決めていない。重みのスケーリングで、再構成のやり直しではない（付録 7）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 12 RESULT 3 -->
+<section class="slide main" id="s-result3">
+  <header class="hd"><p class="eyebrow">結果 3　配線図にわざと誤りを入れる</p><h2>偽のシナプスには強いが、見逃しには弱い（多くの予測が 14〜24% で半減）</h2></header>
+  <div class="row" style="gap:32px">
+    <figure style="width:640px">
+      <img src="img/error_dose.png" alt="左：脳全体のシナプスを削除すると aDN1 と MN9 が 20% 前後で半分に、偽のシナプスは変化なし。右：符号を逆にしたニューロンが 10〜20% で応答が半減し、20% で暴走" style="width:640px">
+    </figure>
+    <div class="grow stack-16">
+      <ul class="list t18">
+        <li><span class="b">見逃し</span>（脳全体で一様に）：効果が半分になるのは aDN1 14%、砂糖 MN9 21%、aBN1 45%。40% で MN9 はゼロ</li>
+        <li><span class="b">偽のシナプス</span>：80% 追加しても変化なし</li>
+        <li><span class="b">符号の誤り</span>：1〜2% では平均 15% 以内（1 回ごとには最大 50%）。8〜18% で 5 つ中 4 つが半減、20% で 3 回中 2 回暴走</li>
+        <li><span class="b">実際の誤判定率</span>（符号が変わる細胞 6.1%）：3 回中 2 回は全予測が 20% 以内、1 回は暴走</li>
+      </ul>
+      <p class="note t18">脳全体に一様な欠損は <i>w</i><sub>syn</sub> の調整である程度吸収されうるが、特定の回路だけの欠損は吸収されない。砂糖 GRN の出力だけを削ると約 50% で半減し、右は総数で 66% 少ない。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">左半球のベンチマーク、誤りのない配線図 = 1。各水準 3 回のランダムな誤り × 8 試行の平均。実線＝砂糖 → MN9、破線＝JO → aDN1。全数値は付録 8。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 13 RESULT 4 -->
+<section class="slide main" id="s-result4">
+  <header class="hd"><p class="eyebrow">結果 4　131 種類の感覚細胞タイプで鏡像テスト</p><h2>暴走は補正でほぼ消えるが、左右の応答の食い違いは残る</h2></header>
+  <div class="row" style="gap:40px">
+    <div style="width:560px" class="stack-8">
+      <p class="t18 b">暴走を起こしたタイプ（左右どちらかで）</p>
+      <img src="img/screen.png" alt="暴走を起こした感覚細胞タイプ：公開版 60/131、触角葉補正後 8/131、さらに細胞タイプ単位の符号補正で 1/131" style="width:560px">
+      <p class="t18">公開版は嗅覚 53 中 52、補正後の 8 つもすべて嗅覚。残る 1 つは光受容細胞 R1–6（自然な応答と考えられる）。</p>
+      <p class="note t16" style="margin-top:8px">食い違いは、刺激したタイプのシナプス数や符号の左右差とは関係しない（<i>ρ</i> = −0.01 と −0.06、<i>P</i> ≥ 0.5）→ 下流の回路で生じる。</p>
+    </div>
+    <div class="grow stack-8">
+      <p class="t18 b">脳全体の応答の一致度（触角葉補正後、<i>n</i> = 118）</p>
+      <img src="img/mirror_r.png" alt="同じ側で 2 回刺激した応答の相関は中央値 0.99、左と右では 0.58" style="width:520px">
+      <p class="t18">左と右は中央値 <i>r</i> = 0.58（四分位 0.43〜0.72）、同じ側の繰り返しは 0.99（<i>P</i> = 4 × 10<sup>−21</sup>）。118 中 85 タイプが繰り返しの最低値を下回る。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">各タイプを左右別々に 100 Hz（4 試行）。暴走＝刺激細胞以外で 2,000 個超が発火。一致度は暴走タイプを除く。<i>P</i>：Wilcoxon。付録 9。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 14 SUMMARY -->
+<section class="slide main" id="s-summary">
+  <header class="hd"><p class="eyebrow">まとめと提言</p><h2>鏡像テストを、配線図シミュレーションの標準の対照実験に</h2></header>
+  <div class="row" style="gap:40px">
+    <div class="grow">
+      <ol class="qs t20">
+        <li>公開された全脳モデルを右半球から動かすと、<span class="b">6 つの予測がすべて失敗</span>し、脳全体が暴走した。</li>
+        <li>原因は配線図の <span class="b">3 つの左右の非対称性</span>（おそらく再構成の誤り）。左に合わせると <span class="b">4/6 が回復</span>。暴走には右の砂糖ニューロン 1 個の入口と、触角葉の 40 個の増幅が両方要る。</li>
+        <li>予測は偽のシナプスには強いが、<span class="b">見逃しには弱い</span>（多くが 14〜24% で半減）。</li>
+        <li>131 タイプでは暴走が 60 → 1 に減ったが、左右の一致度は中央値 <i>r</i> = 0.58（繰り返しは 0.99）。</li>
+      </ol>
+    </div>
+    <div style="width:400px" class="card key stack-16">
+      <h3>提言</h3>
+      <ul class="list t18">
+        <li>予測は左右両方から確かめる（追加データ不要、1 試行約 0.2 秒）</li>
+        <li>読み出しだけでなく、脳全体の活動を監視する</li>
+        <li>単一ニューロンの異常な配線が入口になりうる</li>
+        <li>伝達物質の符号は「仮説」として扱い、細胞タイプ内・左右で確かめる</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">本研究の数値はすべて notes/results_summary.md（査読後の改訂版）に基づく。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== 15 VIDEO -->
+<section class="slide main" id="s-video">
+  <header class="hd"><p class="eyebrow">研究動画（約 70 秒）</p><h2>「左の脳と右の脳は、同じ答えを出すか？」</h2></header>
+  <div class="row" style="gap:32px">
+    <figure class="grow">
+      <img src="img/video_round1.png" alt="動画の第 1 ラウンド：公開版の配線図。右から刺激すると脳全体が暴走" style="width:560px;border-radius:4px">
+      <figcaption><span class="b" style="color:var(--ink)">第 1 ラウンド：公開版の配線図。</span>左は口吻を伸ばして飲む。右は脳全体が暴走して飲めない。</figcaption>
+    </figure>
+    <figure class="grow">
+      <img src="img/video_round2.png" alt="動画の第 2 ラウンド：左右差を補正した配線図。右からでも飲める" style="width:560px;border-radius:4px">
+      <figcaption><span class="b" style="color:var(--ink)">第 2 ラウンド：2 つの左右差を補正した配線図。</span>右から刺激しても暴走せず、口吻を伸ばす。</figcaption>
+    </figure>
+  </div>
+  <p class="t16 muted" style="margin-top:16px">ファイル：video/fly_mirror_test_ja.mp4。脳の活動はシミュレーションの発火を正面から投影したもの。ハエの体の動きは MN9 の発火に合わせた描画（物理シミュレーションではない）。</p>
+  <footer class="ft"><span class="src">動画中の数値は再生時点の瞬間値で、本文の試行平均とは異なる。</span><span class="pg"></span></footer>
+</section>
+
+<!-- =========================================================== APPENDIX -->
+<!-- A1 MODEL -->
+<section class="slide appx" id="a-model">
+  <header class="hd"><p class="eyebrow">付録　方法の詳細</p><h2>モデルの式と定数（Shiu ら 2024 と同一）</h2></header>
+  <div class="two">
+    <div class="stack-16">
+      <div class="card gray">
+        <p class="t20">d<i>v</i>/d<i>t</i> = (<i>v</i><sub>0</sub> − <i>v</i> + <i>g</i>) / <i>τ</i><sub>m</sub></p>
+        <p class="t20">d<i>g</i>/d<i>t</i> = − <i>g</i> / <i>τ</i><sub>s</sub></p>
+        <p class="t18 muted" style="margin-top:8px"><i>v</i>：膜電位、<i>g</i>：シナプス入力</p>
+      </div>
+      <ul class="list t18">
+        <li>発火：<i>v</i> がしきい値を超えると <i>v</i> を静止電位に戻し、<i>g</i> = 0。不応期中は <i>v</i>, <i>g</i> を積分しない</li>
+        <li>シナプス：前ニューロンの発火で、遅延後に <i>g</i> に（符号つきシナプス数）× <i>w</i><sub>syn</sub> を加える</li>
+        <li>符号：前ニューロンの予測伝達物質が GABA・グルタミン酸なら抑制、それ以外（アセチルコリン、ドーパミン、セロトニン、オクトパミン）は興奮</li>
+        <li>刺激：ポアソン入力 1 回ごとに <i>v</i> に 250 × <i>w</i><sub>syn</sub> を加える（刺激ニューロンは不応期なし）。自発発火はない</li>
+      </ul>
+    </div>
+    <div>
+      <table class="t18">
+        <thead><tr><th>定数</th><th class="r">値</th></tr></thead>
+        <tbody>
+          <tr><td>静止・リセット電位 <i>v</i><sub>0</sub></td><td class="r">−52 mV</td></tr>
+          <tr><td>しきい値</td><td class="r">−45 mV</td></tr>
+          <tr><td>膜時定数 <i>τ</i><sub>m</sub></td><td class="r">20 ms</td></tr>
+          <tr><td>シナプス時定数 <i>τ</i><sub>s</sub></td><td class="r">5 ms</td></tr>
+          <tr><td>不応期</td><td class="r">2.2 ms</td></tr>
+          <tr><td>シナプス遅延</td><td class="r">1.8 ms</td></tr>
+          <tr><td><i>w</i><sub>syn</sub>（唯一の自由パラメータ）</td><td class="r">0.275 mV</td></tr>
+          <tr><td>時間刻み／試行の長さ</td><td class="r">0.1 ms／1 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- NOTE: 定数はモデルの仕様（論文草稿 Methods と Shiu ら 2024）から。results_summary.md には w_syn のみ記載 -->
+  <footer class="ft"><span class="src">出典：Shiu ら 2024 <i>Nature</i>; github.com/philshiu/Drosophila_brain_model（Brian 2 版）。本研究の論文草稿 Methods。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A2 VALIDATION -->
+<section class="slide appx" id="a-validation">
+  <header class="hd"><p class="eyebrow">付録　検証</p><h2>GPU 実装は Brian 2 と一致し、配線図の版にもほぼ依存しない</h2></header>
+  <img src="img/validation.png" alt="GPU 実装と Brian 2 の発火率の散布図 3 枚と、v630 と v783 の比較" style="width:1150px;margin-top:-8px">
+  <div class="row" style="margin-top:8px;gap:32px">
+    <ul class="list t18 grow">
+      <li>3 条件、409〜8,856 個のニューロンで <i>r</i> ≥ 0.999。MN9：GPU 56.7 / 85.8 Hz 対 Brian 2 56.6 / 85.9 Hz</li>
+      <li>右の暴走は Brian 2 でも再現（刺激ニューロンを除き 8,742 個、MN9 0.55 Hz）</li>
+    </ul>
+    <ul class="list t18 grow">
+      <li>発見：Brian 2 では、不応期中に届いたシナプス入力は捨てられる（電位の記録で確認し、同じ動作を再現）</li>
+      <li>版の違い：ID が変わらなかった 362 個で <i>r</i> = 0.997。MN9 は v783 で 12% 低い</li>
+    </ul>
+  </div>
+  <footer class="ft"><span class="src">各点＝1 ニューロンの発火率（10〜30 試行の平均）。破線＝一致の直線。<i>r</i>：ピアソン相関、<i>n</i>：発火したニューロン数。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A3 THRESHOLD -->
+<section class="slide appx" id="a-threshold">
+  <header class="hd"><p class="eyebrow">付録　鏡像テストの補足</p><h2>右からの暴走は、刺激 100 Hz を境に一気に始まる</h2></header>
+  <div class="row" style="gap:48px">
+    <figure style="width:540px">
+      <img src="img/active_vs_rate.png" alt="刺激頻度と発火ニューロン数。右は 100 Hz で約 8,600 個に跳ね上がる" style="width:540px">
+    </figure>
+    <div class="grow stack-16">
+      <ul class="list t20">
+        <li>左：刺激を強めても、発火するのは数百個（100 Hz で 412 個）</li>
+        <li>右：100 Hz 以上で 8,612 個前後に跳ね上がる（21 倍）</li>
+        <li>暴走の判定基準：2,000 個を超えるニューロンが発火</li>
+        <li>右の砂糖刺激では、300 Hz まで強めても MN9 は判定基準（20 Hz）に届かない</li>
+      </ul>
+      <p class="note t18">暴走は「応答が大きい」のではなく、刺激と関係のない脳領域まで活動が広がる状態。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">results/mirror_benchmarks.csv（公開版、砂糖 GRN のみ刺激、各 8〜10 試行の平均）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A4 POPULATIONS -->
+<section class="slide appx" id="a-populations">
+  <header class="hd"><p class="eyebrow">付録　方法の詳細</p><h2>刺激と読み出しは「細胞タイプ × 半球」で定義した</h2></header>
+  <div class="two">
+    <div>
+      <p class="t18 b" style="margin-bottom:8px">刺激する感覚ニューロン</p>
+      <table class="t18">
+        <thead><tr><th>集団</th><th>FlyWire の細胞タイプ</th></tr></thead>
+        <tbody>
+          <tr><td>砂糖 GRN（左 33 個・右 24 個）</td><td>LB3b, LB3c</td></tr>
+          <tr><td>苦味 GRN（左右 21 個ずつ）</td><td>LB1a〜d</td></tr>
+          <tr><td>Ir94e 様 GRN</td><td>LB1e, LB2a〜c</td></tr>
+          <tr><td>水 GRN</td><td>LB3a</td></tr>
+          <tr><td>JO（ジョンストン器官）</td><td>JO-C, JO-E の全タイプ</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p class="t18 b" style="margin-bottom:8px">読み出すニューロン（各半球 1 個）</p>
+      <table class="t18">
+        <thead><tr><th>名前</th><th>細胞タイプ</th><th>役割</th></tr></thead>
+        <tbody>
+          <tr><td>MN9</td><td>CB0701</td><td>口吻を伸ばす運動ニューロン</td></tr>
+          <tr><td>aBN1</td><td>SAD093</td><td>触角そうじ（脳内）</td></tr>
+          <tr><td>aDN1</td><td>DNg62</td><td>触角そうじ（下行性）</td></tr>
+          <tr><td>aDN2</td><td>DNge078</td><td>触角そうじ（下行性）</td></tr>
+        </tbody>
+      </table>
+      <p class="t16 muted" style="margin-top:12px">刺激：味覚 100 Hz、JO 150 Hz、各 8〜10 試行（1 秒）。MN9 は左右 2 個の平均。aBN1 は刺激と同じ側、aDN1・aDN2 は反対側を読む。</p>
+      <p class="note t16" style="margin-top:12px">Shiu らは手で選んだ組（砂糖 21 個、JO-CE 70 個）を使った。本研究は細胞タイプ全体（例：左の砂糖 GRN 33 個、JO 229 個）を刺激する。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">細胞タイプの構成は Shiu ら 2024 のニューロン集合に合わせた。注釈：Schlegel ら 2024（FlyWire v783）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A NEW: SHIU SETS -->
+<section class="slide appx" id="a-shiu">
+  <header class="hd"><p class="eyebrow">付録　鏡像テストの対照</p><h2>Shiu らの右の組 9 個では、暴走せずに MN9 が動く</h2></header>
+  <div class="row" style="gap:40px">
+    <figure style="width:600px">
+      <img src="img/shiu_sets.png" alt="Shiu らの組と細胞タイプ全体での、砂糖刺激頻度と MN9 の発火率" style="width:600px">
+    </figure>
+    <div class="grow stack-16">
+      <ul class="list t18">
+        <li>Shiu らの右の組 9 個（元の 10 個のうち 9 個。LB3c と LB4b で、入口の LB3b 1 個を含まない）は、150 Hz 以上で MN9 を動かし、暴走しない</li>
+        <li>比較した左の組は 20 個（元の 21 個のうち v783 に存在するもの）</li>
+        <li>150 Hz で MN9 は右の組 29 Hz、左の組 66 Hz</li>
+        <li>右の細胞タイプ全体（24 個）では暴走して MN9 が動かない</li>
+      </ul>
+      <p class="note t18">失敗は、どのニューロンを刺激するかにも左右される。入口の 1 個を含むかどうかが分かれ目。</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">results/shiu_sets.csv（公開版）と results/mirror_benchmarks.csv（点線、細胞タイプ全体）。MN9 は左右 2 個の平均。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A5 ALL NUMBERS 1 -->
+<section class="slide appx" id="a-numbers1">
+  <header class="hd"><p class="eyebrow">付録　数値一覧（1）</p><h2>データ・鏡像テスト・左右差の数値</h2></header>
+  <div class="two">
+    <table class="t16 nw">
+      <thead><tr><th>項目</th><th class="r">値</th></tr></thead>
+      <tbody>
+        <tr><td>FlyWire v783 ニューロン／結合／シナプス</td><td class="r">138,639／15,091,983／54,492,922</td></tr>
+        <tr><td>GPU 実装：1 秒の試行にかかる時間</td><td class="r">約 0.2 秒</td></tr>
+        <tr><td>Brian 2 との一致（3 条件）</td><td class="r"><i>r</i> ≥ 0.999（409〜8,856 個）</td></tr>
+        <tr><td>版の比較 v630 と v783（ID 不変の細胞）</td><td class="r"><i>r</i> = 0.997（362 個）</td></tr>
+        <tr><td>右の砂糖刺激で発火したニューロン（左）</td><td class="r">8,612 個（412 個）</td></tr>
+        <tr><td>暴走の開始（3 試行）</td><td class="r">59, 135, 414 ms</td></tr>
+        <tr><td>Brian 2 での右の暴走（刺激細胞を除く）</td><td class="r">8,742 個、MN9 0.55 Hz</td></tr>
+        <tr><td>右の JO → aBN1</td><td class="r">10.5 Hz（左 68 Hz）</td></tr>
+      </tbody>
+    </table>
+    <table class="t16 nw">
+      <thead><tr><th>項目</th><th class="r">値</th></tr></thead>
+      <tbody>
+        <tr><td>1 個あたり出力シナプス 右/左：砂糖</td><td class="r">125/265 = 0.47</td></tr>
+        <tr><td>同：苦味／Ir94e／水／JO</td><td class="r">0.64／0.73／0.36／1.18</td></tr>
+        <tr><td>砂糖 GRN の出力シナプス総数</td><td class="r">左 8,800（33 個）／右 3,000（24 個）</td></tr>
+        <tr><td>aBN1 の入力シナプス</td><td class="r">左 1,833／右 459（0.25 倍）</td></tr>
+        <tr><td>JO → aBN1 の直接シナプス</td><td class="r">左 103／右 35</td></tr>
+        <tr><td>触角葉のセロトニン予測の局所ニューロン</td><td class="r">40 個、確信度の中央値 0.35</td></tr>
+        <tr><td>40 個を抑制性にしたときの右の発火数</td><td class="r">8,680 → 236 個</td></tr>
+        <tr><td>苦味 GRN のセロトニン予測</td><td class="r">左 7/21、右 19/21</td></tr>
+        <tr><td>セロトニン予測の全ニューロン</td><td class="r">2,201 個</td></tr>
+        <tr><td>入口の LB3b 1 個を除いた右の発火数</td><td class="r">8,522 → 58 個</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer class="ft"><span class="src">出典：notes/results_summary.md（2026-10-27 更新）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A6 RESCUE DEFINITIONS + DELETION TABLE -->
+<section class="slide appx" id="a-numbers2">
+  <header class="hd"><p class="eyebrow">付録　数値一覧（2）と補正の方法</p><h2>削除実験と補正実験の詳細</h2></header>
+  <div class="row" style="gap:40px">
+    <div style="width:420px">
+      <p class="t18 b" style="margin-bottom:8px">左の砂糖 GRN のシナプス削除と MN9</p>
+      <table class="t16">
+        <thead><tr><th>削除率</th><th class="r">MN9 (Hz)</th><th>削除率</th><th class="r">MN9 (Hz)</th></tr></thead>
+        <tbody>
+          <tr><td>0%</td><td class="r">60.7</td><td>50%</td><td class="r">28.6</td></tr>
+          <tr><td>10%</td><td class="r">58.6</td><td>60%</td><td class="r">10.2</td></tr>
+          <tr><td>20%</td><td class="r">54.0</td><td>70%</td><td class="r">0.9</td></tr>
+          <tr><td>30%</td><td class="r">50.7</td><td>80%</td><td class="r">0</td></tr>
+          <tr><td>40%</td><td class="r">41.4</td><td></td><td></td></tr>
+        </tbody>
+      </table>
+      <p class="t16 muted" style="margin-top:8px">触角葉補正あり、100 Hz。各出力シナプスを確率 <i>p</i> で独立に削除（3 回の乱数抽出の平均）。</p>
+    </div>
+    <div class="grow stack-16">
+      <div class="card gray">
+        <h3>触角葉の符号補正</h3>
+        <p class="t18">細胞クラスが触角葉の局所ニューロン（ALLN）で、予測伝達物質がセロトニンの 40 個を抑制性にする。</p>
+      </div>
+      <div class="card gray">
+        <h3>入力シナプス補正</h3>
+        <p class="t18">右の刺激集団の全出力の重みに「左 ÷ 右（1 個あたり平均）」を掛ける（1 を超えるときのみ）：砂糖 ×2.12、苦味 ×1.57、Ir94e ×1.38。</p>
+      </div>
+      <div class="card gray">
+        <h3>読み出し補正</h3>
+        <p class="t18">右の読み出しニューロンの全入力の重みに「左 ÷ 右（入力総数）」を掛ける（1 を超えるときのみ）：aBN1 ×3.99、MN9 ×1.06。</p>
+      </div>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">補正後の値：砂糖 MN9 47 Hz、苦味 85% 抑制、Ir94e 93% 抑制、aBN1 74 Hz、aDN1・aDN2 3 Hz。補正は左を基準にした十分性の確認。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A7 ERROR TYPES -->
+<section class="slide appx" id="a-errors">
+  <header class="hd"><p class="eyebrow">付録　誤りの用量反応（図 3、査読後の改訂値）</p><h2>誤りの種類ごとの結果</h2></header>
+  <table class="t16">
+    <thead><tr><th style="width:330px">誤りの種類</th><th>結果（左のベンチマーク、誤りのない配線図 = 1）</th></tr></thead>
+    <tbody>
+      <tr><td>シナプスの見逃し（脳全体で一様に削除）</td><td>効果が半分になるのは aDN1 14%、砂糖 MN9 21%、aBN1 45%。30% で MN9 は 8%、40% でゼロ。多くの予測は 14〜24% で半減</td></tr>
+      <tr><td>苦味・Ir94e の抑制</td><td>砂糖の応答が残っている間は保たれる（それ以降は評価不能）。以前の「33〜45% まで耐える」は撤回</td></tr>
+      <tr><td>偽のシナプス（ランダムに追加）</td><td>80% 追加してもまったく変化なし</td></tr>
+      <tr><td>符号の誤り（ランダムに興奮⇄抑制）</td><td>1〜2% で平均の変化は 15% 以内（1 回ごとには最大 50%）。8〜18% で 5 つ中 4 つが半減。20% で 3 回中 2 回暴走</td></tr>
+      <tr><td>伝達物質の誤判定（確信度に基づく）</td><td>0.25 倍で伝達物質 8.2%・符号 6.1% の細胞が変わる（実際の誤り率約 6% と同程度）。3 回中 2 回は全予測が 20% 以内、1 回は暴走し aDN1 をほぼ失う</td></tr>
+      <tr><td>シナプスの強さのばらつき（平均 1）</td><td><i>σ</i> = 0.25 でおおむね保たれる（aDN1 −25%）、<i>σ</i> = 0.5 で aDN1 −56% かつ 3 回中 1 回暴走、<i>σ</i> = 1 で全回暴走</td></tr>
+    </tbody>
+  </table>
+  <div class="row" style="margin-top:12px;gap:32px">
+    <ul class="list t16 grow">
+      <li>解析上の慣習も効く：5 シナプス未満の結合を捨てると aDN1 −83%、aBN1 −46%。グルタミン酸を興奮性にすると 30,128 個が暴走し、苦味・Ir94e の抑制が逆転</li>
+    </ul>
+    <ul class="list t16 grow">
+      <li>見逃しの半減点は脳全体で一様に消した値。一様な欠損は <i>w</i><sub>syn</sub> の調整である程度吸収されうる。砂糖 GRN の出力だけなら約 50% で半減（右は総数で 66% 少ない）</li>
+    </ul>
+  </div>
+  <footer class="ft"><span class="src">各水準 3 回のランダムな誤り × 8 試行。抑制は砂糖 MN9 が 20 Hz を超えるときだけ評価（notes/results_summary.md、査読後の改訂）。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A8 SCREEN DETAILS -->
+<section class="slide appx" id="a-screen">
+  <header class="hd"><p class="eyebrow">付録　131 タイプの鏡像テスト（図 4、査読後の改訂値）</p><h2>スクリーニングの条件と補足の結果</h2></header>
+  <div class="two">
+    <div class="stack-16">
+      <div class="card gray">
+        <h3>対象と条件</h3>
+        <p class="t18">左右それぞれに 3 個以上の注釈があるすべての感覚細胞タイプ：嗅覚 53、機械感覚 50、味覚 13、湿度 4、温度 3、視覚 3、未分類 5。各タイプを左右別々に 100 Hz で刺激（4 試行）。暴走の判定から刺激したニューロン自身を除く。</p>
+      </div>
+      <table class="t16 nw">
+        <thead><tr><th>暴走を起こしたタイプ（左右どちらかで）</th><th class="r">数</th></tr></thead>
+        <tbody>
+          <tr><td>公開版（嗅覚では 53 中 52）</td><td class="r">60/131（46%）</td></tr>
+          <tr><td>触角葉の 40 個を抑制性に補正（すべて嗅覚）</td><td class="r">8/131（6%）</td></tr>
+          <tr><td>さらに細胞タイプ単位の符号補正</td><td class="r">1/131（R1–6）</td></tr>
+        </tbody>
+      </table>
+      <p class="t16 muted">R1–6 は片側 4,029〜4,423 個を刺激し、視葉を広く動かす自然な応答と考えられる。</p>
+    </div>
+    <div class="stack-16">
+      <ul class="list t18">
+        <li>一致度（触角葉補正後、暴走タイプを除く <i>n</i> = 118）：同じ側の繰り返し 中央値 <i>r</i> = 0.99、左と右 0.58（四分位 0.43〜0.72）、<i>P</i> = 4 × 10<sup>−21</sup>。118 中 85 で繰り返しの最低値より低い</li>
+        <li>食い違いはシナプス数の左右差（<i>ρ</i> = −0.01、<i>P</i> = 0.9）とも符号の左右差（<i>ρ</i> = −0.06、<i>P</i> = 0.5）とも関係しない</li>
+        <li>符号を細胞タイプ単位でそろえても少ししか改善しない（0.62 対 0.58、<i>P</i> = 0.01、<i>n</i> = 115）</li>
+        <li>刺激した側に残る活動の割合：嗅覚 右 0.45 対 左 0.53（<i>P</i> = 0.002、<i>n</i> = 45）、機械感覚 0.89 対 0.87（<i>P</i> = 0.44、<i>n</i> = 39）</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">細胞タイプ単位の符号：各タイプの伝達物質予測を確信度で重み付けした多数決（左右をまとめて）。出典：notes/results_summary.md。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A9 LIMITATIONS -->
+<section class="slide appx" id="a-limits">
+  <header class="hd"><p class="eyebrow">付録　限界と注意点</p><h2>この研究で言えること、言えないこと</h2></header>
+  <div class="two">
+    <div class="card">
+      <h3>言えること</h3>
+      <ul class="list t18" style="margin-top:8px">
+        <li>公開モデルの予測は、左右を入れ替えると再現しない</li>
+        <li>左のシナプスを右と同じ数まで減らすと、MN9 は右と同じく動かなくなる（暴走はしない）</li>
+        <li>右の暴走は、入口の 1 個か増幅器の 40 個のどちらかを除けば消える</li>
+        <li>3 つの非対称性を左に合わせると 4/6 が回復する（十分性）</li>
+        <li>予測は偽のシナプスには強く、見逃しには弱い（多くが 14〜24% で半減）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>言えないこと・残る課題</h3>
+      <ul class="list t18" style="margin-top:8px">
+        <li>どちらの半球が正しいか、左右差が再構成の誤りか生物学的な差かは、配線図だけでは決められない</li>
+        <li>補正は重みのスケーリングで、再構成のやり直しではない</li>
+        <li>aDN1・aDN2 の失敗と、全補正後も残る右の広い応答（1,044 対 429 個）の原因は未特定</li>
+        <li>結果は刺激の選び方にも左右される（細胞タイプ全体と Shiu らの組で違う）</li>
+        <li>モデルは 1 種類（LIF、自発発火なし）</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">左右の配線の違いの一般的な程度については Schlegel ら 2024 を参照。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A8 GLOSSARY -->
+<section class="slide appx" id="a-glossary">
+  <header class="hd"><p class="eyebrow">付録　用語集</p><h2>用語の説明</h2></header>
+  <div class="two" style="gap:40px">
+    <dl class="gloss">
+      <dt>コネクトーム</dt><dd>脳の全ニューロンとシナプスの配線図</dd>
+      <dt>FlyWire</dt><dd>ショウジョウバエ成虫の全脳コネクトーム（v783 を使用）</dd>
+      <dt>LIF モデル</dt><dd>漏れ積分発火モデル。膜電位がしきい値を超えると発火</dd>
+      <dt>GRN</dt><dd>味覚受容ニューロン（砂糖・苦味・水・Ir94e）</dd>
+      <dt>MN9</dt><dd>口吻を伸ばす運動ニューロン</dd>
+      <dt>JO</dt><dd>ジョンストン器官。触角の機械感覚ニューロン</dd>
+      <dt>LB3b・LB3c</dt><dd>砂糖 GRN の細胞タイプ（FlyWire の名前）</dd>
+    </dl>
+    <dl class="gloss">
+      <dt>aBN1・aDN1・aDN2</dt><dd>触角そうじ（グルーミング）を起こすニューロン</dd>
+      <dt>触角葉</dt><dd>匂いの情報を最初に処理する脳領域</dd>
+      <dt>局所ニューロン</dt><dd>触角葉の中だけで結合するニューロン。多くは抑制性</dd>
+      <dt>CSD ニューロン</dt><dd>触角葉に入る唯一のセロトニン細胞（片側 1 個）</dd>
+      <dt>入口と増幅器</dt><dd>暴走を始める右の LB3b 1 個と、広げる触角葉の 40 個</dd>
+      <dt>暴走</dt><dd>2,000 個を超えるニューロンが発火する状態</dd>
+      <dt>鏡像テスト</dt><dd>同じ実験を左右の半球で行い、答えを比べる対照実験</dd>
+    </dl>
+  </div>
+  <footer class="ft"><span class="src">ベンチマークの判定基準は本文スライド 4 を参照。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A9 REFERENCES -->
+<section class="slide appx" id="a-refs">
+  <header class="hd"><p class="eyebrow">付録　参考文献</p><h2>主な参考文献</h2></header>
+  <ol class="refs">
+    <li>Dorkenwald, S. <i>et al.</i> Neuronal wiring diagram of an adult brain. <i>Nature</i> <b>634</b>, 124–138 (2024).</li>
+    <li>Schlegel, P. <i>et al.</i> Whole-brain annotation and multi-connectome cell typing of <i>Drosophila</i>. <i>Nature</i> <b>634</b>, 139–152 (2024).</li>
+    <li>Shiu, P. K. <i>et al.</i> A <i>Drosophila</i> computational brain model reveals sensorimotor processing. <i>Nature</i> <b>634</b>, 210–219 (2024).</li>
+    <li>Eckstein, N. <i>et al.</i> Neurotransmitter classification from electron microscopy images at synaptic sites in <i>Drosophila melanogaster</i>. <i>Cell</i> <b>187</b>, 2574–2594 (2024).</li>
+    <li>Buhmann, J. <i>et al.</i> Automatic detection of synaptic partners in a whole-brain <i>Drosophila</i> electron microscopy data set. <i>Nat. Methods</i> <b>18</b>, 771–774 (2021).</li>
+    <li>Stimberg, M., Brette, R. &amp; Goodman, D. F. M. Brian 2, an intuitive and efficient neural simulator. <i>eLife</i> <b>8</b>, e47314 (2019).</li>
+    <li>Gordon, M. D. &amp; Scott, K. Motor control in a <i>Drosophila</i> taste circuit. <i>Neuron</i> <b>61</b>, 373–384 (2009).</li>
+    <li>Hampel, S. <i>et al.</i> A neural command circuit for grooming movement control. <i>eLife</i> <b>4</b>, e08758 (2015).</li>
+    <li>Roy, B. <i>et al.</i> Metamorphosis of an identified serotonergic neuron in the <i>Drosophila</i> olfactory system. <i>Neural Dev.</i> <b>2</b>, 20 (2007).</li>
+    <li>Zhang, X. &amp; Gaudry, Q. Functional integration of a serotonergic neuron in the <i>Drosophila</i> antennal lobe. <i>eLife</i> <b>5</b>, e16836 (2016).</li>
+    <li>Chou, Y.-H. <i>et al.</i> Diversity and wiring variability of olfactory local interneurons in the <i>Drosophila</i> antennal lobe. <i>Nat. Neurosci.</i> <b>13</b>, 439–449 (2010).</li>
+    <li>Shiu, P. K. Drosophila_brain_model. GitHub https://github.com/philshiu/Drosophila_brain_model (2024).</li>
+  </ol>
+  <footer class="ft"><span class="src">論文草稿 paper/paper_en.html の文献リストから抜粋。</span><span class="pg"></span></footer>
+</section>
+
+<!-- A10 CREDITS -->
+<section class="slide appx" id="a-credits">
+  <header class="hd"><p class="eyebrow">付録　クレジット</p><h2>データ・コード・デザインの出典とライセンス</h2></header>
+  <div class="two">
+    <ul class="list t18">
+      <li>配線図と注釈：FlyWire Consortium（FlyWire v783、Dorkenwald ら 2024; Schlegel ら 2024）</li>
+      <li>全脳モデル：Shiu ら 2024。元のコード（Brian 2 版）を検証に使用</li>
+      <li>コード・中間結果・図の作成スクリプト：プロジェクト fly_connectome_robustness（公開時にリポジトリに登録予定）</li>
+      <li>解析・シミュレーション・草稿の作成には AI システム（Claude, Anthropic）の支援を受けた。内容の責任は著者にある</li>
+    </ul>
+    <div class="card gray">
+      <h3>スライドのデザイン</h3>
+      <p class="t18">デジタル庁デザインシステムのデザイントークン（色・タイポグラフィ・角丸）を使用。</p>
+      <p class="t16 muted" style="margin-top:8px">MIT License, Copyright (c) 2023 デジタル庁<br>ライセンス全文：slides/dads/LICENSE</p>
+      <p class="t16 muted" style="margin-top:8px">フォント：Noto Sans JP（SIL Open Font License）</p>
+    </div>
+  </div>
+  <footer class="ft"><span class="src">本スライドはデジタル庁の公式資料ではありません。</span><span class="pg"></span></footer>
+</section>
+
+</body>
+</html>

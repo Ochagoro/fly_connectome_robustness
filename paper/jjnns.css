@@ -1,0 +1,37 @@
+/* 和文論文の体裁（A4・2 段組・明朝本文）。
+   日本神経回路学会誌などの和文誌の一般的な形式（和文要旨・英文 Abstract・キーワード・
+   2 段組本文・図表番号・参考文献）を参考にした。 */
+@page { size: A4; margin: 20mm 16mm 20mm 16mm;
+  @bottom-center { content: counter(page); font-size: 8pt; } }
+:root { --ink: #111; --ink2: #444; --rule: #999; }
+html { font-family: "Noto Serif CJK JP", "Noto Serif", serif; color: var(--ink); background: #fff; }
+body { margin: 0; font-size: 9.2pt; line-height: 1.68; }
+.head { text-align: center; margin-bottom: 8pt; }
+.kind { font-family: "Noto Sans CJK JP", sans-serif; font-size: 8.5pt; color: var(--ink2); letter-spacing: 0.1em; }
+h1 { font-family: "Noto Sans CJK JP", sans-serif; font-size: 16pt; line-height: 1.4; margin: 6pt 0 4pt; font-weight: 700; }
+.etitle { font-family: "Liberation Serif", "Noto Serif", serif; font-size: 11pt; font-style: italic; margin-bottom: 8pt; }
+.authors { font-size: 10.5pt; margin: 4pt 0 2pt; }
+.affil { font-size: 8.5pt; color: var(--ink2); margin-bottom: 8pt; }
+.abstract { border-top: 0.8pt solid var(--ink); border-bottom: 0.8pt solid var(--ink); padding: 6pt 4pt; margin: 6pt 0 4pt; font-size: 8.8pt; }
+.abstract p { text-indent: 0; margin: 0 0 4pt; }
+.abstract .lab { font-family: "Noto Sans CJK JP", sans-serif; font-weight: 700; }
+.eabs { font-family: "Liberation Serif", "Noto Serif", serif; font-size: 8.6pt; line-height: 1.5; }
+.kw { font-size: 8.5pt; margin: 4pt 0 10pt; }
+.cols { column-count: 2; column-gap: 7mm; }
+h2 { font-family: "Noto Sans CJK JP", sans-serif; font-size: 10.5pt; margin: 10pt 0 4pt; break-after: avoid; }
+h3 { font-family: "Noto Sans CJK JP", sans-serif; font-size: 9.5pt; margin: 8pt 0 3pt; break-after: avoid; }
+p { margin: 0 0 3pt; text-indent: 1em; text-align: justify; }
+figure { margin: 6pt 0 8pt; break-inside: avoid; }
+figure img { width: 100%; display: block; }
+figure.wide { column-span: all; }
+figcaption { font-size: 8pt; line-height: 1.5; margin-top: 4pt; text-align: justify; }
+figcaption b { font-family: "Noto Sans CJK JP", sans-serif; }
+table { border-collapse: collapse; font-size: 8pt; width: 100%; margin: 4pt 0 8pt; break-inside: avoid; }
+th, td { border-bottom: 0.5pt solid var(--rule); padding: 2pt 4pt; text-align: left; }
+th { border-top: 0.8pt solid var(--ink); border-bottom: 0.8pt solid var(--ink); font-family: "Noto Sans CJK JP", sans-serif; }
+td.num { text-align: right; }
+ol.refs { font-family: "Liberation Serif", "Noto Serif", serif; font-size: 7.8pt; line-height: 1.45; padding-left: 16pt; }
+ol.refs li { margin-bottom: 2pt; }
+sup { font-size: 70%; line-height: 0; }
+.small { font-size: 8pt; color: var(--ink2); }
+.mono { font-family: "Liberation Mono", monospace; font-size: 8pt; }

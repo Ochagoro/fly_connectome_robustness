@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同じ脳の、左と右</title>
+<style>
+:root {
+  --key-50: #e8f1fe;
+  --key-100: #d9e6ff;
+  --key-200: #c5d7fb;
+  --key-900: #0017c1;
+  --key-1000: #00118f;
+  --text: #1a1a1a;
+  --gray-50: #f2f2f2;
+  --gray-100: #e6e6e6;
+  --gray-200: #cccccc;
+  --gray-300: #b3b3b3;
+  --gray-536: #767676;
+  --gray-600: #666666;
+  --gray-700: #4d4d4d;
+  --gray-800: #333333;
+  --left: #0017c1;      /* 左半球 = Blue-900 */
+  --left-bg: #e8f1fe;
+  --right: #c74700;     /* 右半球 = Orange-800 */
+  --right-bg: #ffeee2;
+  --exc: #ce0000;       /* アクセル（興奮）= Red-900 */
+  --inh: #006f83;       /* ブレーキ（抑制）= Cyan-900 */
+  --ok: #197a4b;        /* Green-800 */
+  --ok-bg: #e6f5ec;
+  --ng: #a90000;        /* Red-1000 */
+  --ng-bg: #fdeeee;
+  --warn-bg: #fbf5e0;
+  --warn: #806300;
+  --font: 'Noto Sans JP', 'Noto Sans CJK JP', sans-serif;
+}
+
+@page {
+  size: A4;
+  margin: 15mm 17mm 17mm 17mm;
+  @bottom-center {
+    content: counter(page) " / " counter(pages);
+    font-family: 'Noto Sans JP', 'Noto Sans CJK JP', sans-serif;
+    font-size: 9pt;
+    color: #767676;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  margin: 0;
+  background: #ffffff;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "palt" 0;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 16px 64px;
+}
+@media print {
+  main { max-width: none; padding: 0; }
+}
+
+p { margin: 0 0 1em; }
+strong { font-weight: 700; }
+small, .small { font-size: 14px; line-height: 1.6; color: var(--gray-700); }
+
+/* ---------- 表紙ブロック ---------- */
+.doc-label {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--key-900);
+  border: 1px solid var(--key-900);
+  border-radius: 4px;
+  padding: 2px 10px;
+  margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+h1 {
+  font-size: 28px;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+.subtitle {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--gray-700);
+  margin: 0 0 16px;
+}
+.meta {
+  font-size: 14px;
+  color: var(--gray-600);
+  border-top: 1px solid var(--gray-200);
+  padding-top: 8px;
+  margin-bottom: 24px;
+}
+
+/* ---------- 要約 ---------- */
+.summary {
+  background: var(--key-50);
+  border: 1px solid var(--key-200);
+  border-radius: 8px;
+  padding: 16px 22px 4px;
+  margin: 0 0 20px;
+  break-inside: avoid;
+}
+.summary h2 {
+  font-size: 20px;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  color: var(--key-1000);
+}
+.summary ol { margin: 0 0 12px; padding-left: 1.6em; }
+.summary li { margin-bottom: 4px; font-size: 15px; line-height: 1.65; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 0 20px;
+  break-inside: avoid;
+}
+.stat {
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.stat .num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+.stat .num .unit { font-size: 16px; font-weight: 700; margin-left: 2px; }
+.stat .lab { font-size: 13px; line-height: 1.5; color: var(--gray-700); margin-top: 4px; }
+
+.toc {
+  border-top: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 12px 0;
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.65;
+  columns: 2;
+  column-gap: 24px;
+  break-inside: avoid;
+}
+.toc .toc-title { font-weight: 700; column-span: all; margin-bottom: 4px; }
+.toc ol { margin: 0; padding-left: 1.8em; }
+
+/* ---------- 見出し ---------- */
+section { margin-top: 32px; }
+h2 {
+  font-size: 24px;
+  line-height: 1.45;
+  font-weight: 700;
+  margin: 0 0 16px;
+  padding-top: 12px;
+  border-top: 3px solid var(--key-900);
+  break-after: avoid;
+  break-inside: avoid;
+}
+h2 .secno {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--key-900);
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+h3 {
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 700;
+  margin: 28px 0 10px;
+  break-after: avoid;
+}
+h3 + p, h2 + p { break-before: avoid; }
+
+/* ---------- ボックス ---------- */
+.box {
+  border-radius: 8px;
+  padding: 14px 18px 4px;
+  margin: 0 0 20px;
+  break-inside: avoid;
+}
+.box .box-title { font-weight: 700; margin-bottom: 6px; }
+.box.note { background: var(--gray-50); }
+.box.key { background: var(--key-50); border: 1px solid var(--key-200); }
+.box.caution { background: #ffffff; border: 2px solid var(--gray-800); break-inside: auto; }
+.box ul, .box ol { margin: 0 0 10px; padding-left: 1.4em; }
+.box li { margin-bottom: 4px; }
+
+.placeholder {
+  background: var(--warn-bg);
+  border: 2px dashed var(--warn);
+  border-radius: 8px;
+  padding: 14px 18px 4px;
+  margin: 0 0 20px;
+  break-inside: avoid;
+}
+.placeholder .ph-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--warn);
+  border-radius: 4px;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+.tbd {
+  font-weight: 700;
+  color: var(--warn);
+  white-space: nowrap;
+}
+
+ul.plain { padding-left: 1.4em; margin: 0 0 1em; }
+ul.plain li { margin-bottom: 6px; }
+
+/* ---------- 図 ---------- */
+figure {
+  margin: 8px 0 24px;
+  break-inside: avoid;
+}
+figure svg, figure img { display: block; width: 100%; height: auto; }
+figure img { border-radius: 6px; }
+figcaption {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--gray-700);
+  margin-top: 8px;
+}
+figcaption .fig-no { font-weight: 700; color: var(--text); margin-right: 0.5em; }
+
+.fig-side {
+  display: grid;
+  grid-template-columns: 44% 1fr;
+  gap: 20px;
+  align-items: start;
+  margin: 8px 0 24px;
+  break-inside: avoid;
+}
+.fig-side figure { margin: 0; }
+
+/* ---------- 表 ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+  break-inside: avoid;
+}
+th, td {
+  border-bottom: 1px solid var(--gray-200);
+  padding: 8px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+thead th {
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--gray-800);
+  font-weight: 700;
+  font-size: 14px;
+}
+td.num, th.num { text-align: right; white-space: nowrap; }
+.tbl-wrap { margin: 8px 0 24px; break-inside: avoid; }
+.tbl-cap { font-size: 14px; color: var(--gray-700); margin-top: 6px; line-height: 1.6; }
+.tbl-cap .fig-no { font-weight: 700; color: var(--text); margin-right: 0.5em; }
+.pass { color: var(--ok); font-weight: 700; }
+.fail { color: var(--ng); font-weight: 700; }
+.side-l { color: var(--left); font-weight: 700; }
+.side-r { color: var(--right); font-weight: 700; }
+
+table.grid td.c, table.grid th.c { text-align: center; width: 9%; padding: 6px 2px; }
+table.grid td.c.o { background: var(--ok-bg); color: var(--ok); font-weight: 700; }
+table.grid td.c.x { background: var(--ng-bg); color: var(--ng); font-weight: 700; }
+table.grid td.c { border-left: 2px solid #ffffff; }
+table.grid td.total { text-align: center; font-weight: 700; white-space: nowrap; }
+
+/* ---------- 用語集・FAQ・原稿 ---------- */
+dl.glossary { margin: 0; }
+dl.glossary div {
+  display: grid;
+  grid-template-columns: 11em 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-200);
+  break-inside: avoid;
+}
+dl.glossary dt { font-weight: 700; }
+dl.glossary dd { margin: 0; }
+dl.glossary .yomi { display: block; font-size: 13px; font-weight: 400; color: var(--gray-600); }
+
+.faq { margin: 0 0 18px; break-inside: avoid; }
+.faq .q { font-weight: 700; margin-bottom: 4px; display: flex; gap: 8px; }
+.faq .a { display: flex; gap: 8px; }
+.faq .mark {
+  flex: none;
+  display: inline-block;
+  width: 1.7em; height: 1.7em;
+  line-height: 1.7em;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 2px;
+}
+.faq .q .mark { background: var(--key-900); color: #ffffff; }
+.faq .a .mark { background: var(--gray-100); color: var(--gray-800); }
+.faq .a p { margin: 0; }
+
+.script {
+  border-left: 4px solid var(--key-900);
+  padding: 4px 0 4px 20px;
+  margin: 0 0 16px;
+}
+.script p { margin-bottom: 0.9em; break-inside: avoid; }
+.script .cue { font-size: 13px; font-weight: 700; color: var(--key-900); letter-spacing: 0.05em; display: block; }
+
+.page-break { break-before: page; }
+
+.footer-note {
+  margin-top: 40px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gray-600);
+}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ======================= 表紙ブロック ======================= -->
+<header>
+  <div class="doc-label">やさしい研究解説　第 1 版</div>
+  <h1>同じ脳の、左と右。<br>ハエの「配線図シミュレーション」を鏡で確かめる</h1>
+  <p class="subtitle">脳の右側から同じ実験をしたら、予測がすべて外れた。原因は、ハエの脳ではなく、おそらく「地図」の作成ミスによる左右の違いだった。</p>
+  <div class="meta">2026 年 10 月 27 日の一日で行った計算研究の解説（論文草稿にもとづく）　｜　読む時間の目安：本文 約 20&nbsp;分　｜　予備知識は不要です</div>
+</header>
+
+<div class="summary">
+  <h2>30&nbsp;秒でわかる要約</h2>
+  <ol>
+    <li>ハエの脳の<strong>配線図</strong>をそのままコンピューターで動かすと、本物のハエと同じ反応を予測できる、と報告されていました。</li>
+    <li>ところが、同じ実験を脳の<strong>右側</strong>から行うと、確かめた <strong>6&nbsp;つの予測がすべて外れ</strong>、脳の広い範囲が勝手に興奮し続ける「暴走」が起きました。</li>
+    <li>原因は配線図の<strong>左右の違い</strong>（おそらく地図の作成ミス）でした。暴走は、右の砂糖センサー 1&nbsp;個という「入口」と、アクセル扱いの 40&nbsp;個という「増幅器」がそろって起きていました。右を左に合わせてモデルの中で直すと <strong>6&nbsp;つのうち 4&nbsp;つ</strong>が戻りました。</li>
+    <li>わざと誤りを入れると、偽のつなぎ目は平気でも、<strong>本物のつなぎ目の見落とし</strong>は脳全体で 14〜24% で多くの予測を半分にしました。131&nbsp;種類の感覚では、暴走しなかった種類でも<strong>左右の答えが広く食い違って</strong>いました。</li>
+  </ol>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="num">6 → 0</div>
+    <div class="lab">左からなら 6&nbsp;つとも当たった予測が、右からでは 0 に</div>
+  </div>
+  <div class="stat">
+    <div class="num">8,612<span class="unit">個</span></div>
+    <div class="lab">右から刺激したとき発火したニューロンの数（左からは 412&nbsp;個）</div>
+  </div>
+  <div class="stat">
+    <div class="num">4 / 6</div>
+    <div class="lab">左右の違いを左に合わせて直したあと、右で元に戻った予測の数</div>
+  </div>
+</div>
+
+<nav class="toc" aria-label="目次">
+  <div class="toc-title">目次</div>
+  <ol>
+    <li>ハエの脳と「配線図」</li>
+    <li>配線図から「コンピューターの脳」を動かす</li>
+    <li>この研究の問い：左右で答え合わせ</li>
+    <li>わかったこと① 右だと予測が外れた</li>
+    <li>わかったこと② 原因は配線図の左右の違い</li>
+    <li>わかったこと③ 直すと 4&nbsp;つが戻った</li>
+    <li>わかったこと④ 誤りの種類で壊れ方が違う</li>
+    <li>わかったこと⑤ 131&nbsp;種類でも左右が食い違う</li>
+    <li>なぜ大事なのか</li>
+    <li>この研究でわからないこと・限界</li>
+    <li>用語集</li>
+    <li>よくある質問</li>
+    <li>3&nbsp;分で人に説明するなら</li>
+  </ol>
+</nav>
+
+<!-- ======================= 1 ======================= -->
+<section id="s1">
+  <h2><span class="secno">1</span>ハエの脳と「配線図（コネクトーム）」</h2>
+
+  <p>この研究の主役は、台所の果物に寄ってくる小さなハエ、<strong>ショウジョウバエ</strong>です。遺伝の研究などで昔から広く使われてきた生き物で、脳はゴマ粒よりも小さいのですが、その中には約 14&nbsp;万個の<strong>ニューロン（神経細胞）</strong>が詰まっています。</p>
+
+  <p>ニューロンは、電気の信号をやりとりする小さな部品です。長い「電線」を伸ばしてほかのニューロンとつながり、そのつなぎ目を<strong>シナプス</strong>と呼びます。同じ 2&nbsp;つのニューロンの間に、つなぎ目が何十か所もあることがあり、つなぎ目が多いほど信号は強く伝わります。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 190" role="img" aria-label="ニューロン A の電線がニューロン B につながり、その接点がシナプス（つなぎ目）であることを示す図">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <!-- neuron A dendrites -->
+      <g stroke="#0017c1" stroke-width="2" fill="none" stroke-linecap="round">
+        <path d="M70 92 L40 70 M70 100 L32 100 M70 108 L40 132 M48 76 L36 58 M44 126 L30 140"/>
+        <!-- axon -->
+        <path d="M112 100 L360 100"/>
+        <path d="M360 100 C380 100 385 62 405 62"/>
+        <path d="M360 100 L405 100"/>
+        <path d="M360 100 C380 100 385 138 405 138"/>
+      </g>
+      <circle cx="90" cy="100" r="22" fill="#e8f1fe" stroke="#0017c1" stroke-width="2"/>
+      <!-- neuron B -->
+      <g stroke="#4d4d4d" stroke-width="2" fill="none" stroke-linecap="round">
+        <path d="M419 62 C470 62 500 92 548 96"/>
+        <path d="M419 100 L548 100"/>
+        <path d="M419 138 C470 138 500 108 548 104"/>
+        <path d="M590 100 L640 100"/>
+      </g>
+      <circle cx="570" cy="100" r="22" fill="#f2f2f2" stroke="#4d4d4d" stroke-width="2"/>
+      <!-- synapses -->
+      <g fill="#0017c1">
+        <circle cx="412" cy="62" r="6"/>
+        <circle cx="412" cy="100" r="6"/>
+        <circle cx="412" cy="138" r="6"/>
+      </g>
+      <!-- signal arrow -->
+      <path d="M170 82 L300 82" stroke="#767676" stroke-width="1.5" fill="none"/>
+      <path d="M300 82 L292 77 L292 87 Z" fill="#767676"/>
+      <text class="t" x="235" y="72" font-size="13" text-anchor="middle" fill="#4d4d4d">電気信号の流れ</text>
+      <!-- labels -->
+      <text class="t" x="90" y="150" font-size="14" font-weight="700" text-anchor="middle">ニューロン A</text>
+      <text class="t" x="90" y="168" font-size="12" text-anchor="middle" fill="#4d4d4d">（送る側）</text>
+      <text class="t" x="570" y="150" font-size="14" font-weight="700" text-anchor="middle">ニューロン B</text>
+      <text class="t" x="570" y="168" font-size="12" text-anchor="middle" fill="#4d4d4d">（受け取る側）</text>
+      <path d="M418 30 L412 52" stroke="#0017c1" stroke-width="1.5"/>
+      <text class="t" x="420" y="24" font-size="14" font-weight="700" fill="#0017c1">シナプス（つなぎ目）× 3&nbsp;か所</text>
+      <text class="t" x="235" y="128" font-size="13" text-anchor="middle" fill="#4d4d4d">電線（軸索）</text>
+    </svg>
+    <figcaption><span class="fig-no">図 1</span>ニューロンとシナプス。A から B へのつながりに、つなぎ目が 3&nbsp;か所ある例。つなぎ目が多いほど、A の信号は B に強く伝わる。</figcaption>
+  </figure>
+
+  <p>このつながりを、脳全体について 1 本残らず書き出そうとしたのが<strong>コネクトーム（配線図）</strong>です。ハエの脳を非常に薄く切って電子顕微鏡で撮影し、膨大な画像の中の「電線」を、AI と大勢の人の手作業でたどりました。FlyWire（フライワイヤー）という国際プロジェクトが 2024 年に発表した配線図には、次のものが含まれています。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>配線図に記録されているもの</th><th class="num">数</th><th>ひとことで</th></tr></thead>
+      <tbody>
+        <tr><td>ニューロン</td><td class="num">138,639&nbsp;個</td><td>約 14&nbsp;万個の部品</td></tr>
+        <tr><td>つながり（どの細胞からどの細胞へ）</td><td class="num">15,091,983&nbsp;組</td><td>約 1,510&nbsp;万組の「道」</td></tr>
+        <tr><td>シナプス（つなぎ目）</td><td class="num">54,492,922&nbsp;個</td><td>約 5,450&nbsp;万個の接点</td></tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap"><span class="fig-no">表 1</span>この研究で使った配線図（FlyWire 第 783 版）の規模。</div>
+  </div>
+
+  <h3>地図アプリにたとえると</h3>
+  <p>配線図は、地図アプリの<strong>道路地図</strong>のようなものです。道と交差点がすべて描かれていれば、どこからどこへ行けるかはわかります。でも、地図を眺めるだけでは、実際にどこで渋滞が起きるかまではわかりません。そこで、地図の上で車を走らせてみる、つまり<strong>シミュレーション</strong>の出番になります。</p>
+  <p>そしてもう一つ大事なこと。<strong>地図にも誤りがあります</strong>。描き忘れた道、存在しない道、信号の色の取り違え。これだけ巨大な地図を作れば、ある程度の誤りは避けられません。この研究は、まさにその「地図の誤り」がシミュレーションの答えをどう変えるか、という話です。</p>
+</section>
+
+<!-- ======================= 2 ======================= -->
+<section id="s2">
+  <h2><span class="secno">2</span>配線図から「コンピューターの脳」を動かす</h2>
+
+  <p>2024 年、Shiu（シュウ）らの研究チームは、この配線図をほぼそのまま使って、ハエの脳全体をコンピューターの中で動かすモデルを発表しました（科学誌 Nature に掲載）。ルールはとても単純です。</p>
+
+  <ul class="plain">
+    <li><strong>電気がたまると「パチッ」</strong>：各ニューロンは、入ってくる信号で電気がたまり、ある量を超えると一瞬「パチッ」と信号を出して元に戻ります。この「パチッ」を<strong>スパイク</strong>と呼びます。1&nbsp;秒間に何回パチッとしたかを <strong>Hz（ヘルツ）</strong>で表します。たとえば 58&nbsp;Hz なら、1&nbsp;秒に 58&nbsp;回です。</li>
+    <li><strong>つなぎ目の数で強さが決まる</strong>：スパイクはシナプスを通って相手に届きます。つなぎ目が多いほど強く届きます。</li>
+    <li><strong>アクセル型とブレーキ型</strong>：相手を興奮させる（パチッとさせやすくする）ニューロンと、相手を静める（パチッとさせにくくする）ニューロンがあります。どちらなのかは、そのニューロンが出す化学物質（<strong>神経伝達物質</strong>）の種類で決めます。この種類は、電子顕微鏡の画像から AI が推定したものです。</li>
+    <li><strong>細かい個性は入れない</strong>：すべてのニューロンを同じ単純なルールで動かし、人が調整できる「つまみ」は 1&nbsp;つだけです。</li>
+  </ul>
+
+  <figure>
+    <svg viewBox="0 0 660 230" role="img" aria-label="アクセル型ニューロンとブレーキ型ニューロンが受け取る側のニューロン C に信号を送り、C がスパイクを出す様子を示す図">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <!-- accelerator neuron -->
+      <circle cx="80" cy="58" r="24" fill="#fdeeee" stroke="#ce0000" stroke-width="2"/>
+      <text class="t" x="80" y="66" font-size="24" font-weight="700" text-anchor="middle" fill="#ce0000">＋</text>
+      <text class="t" x="80" y="100" font-size="14" font-weight="700" text-anchor="middle" fill="#ce0000">アクセル型</text>
+      <text class="t" x="80" y="117" font-size="12" text-anchor="middle" fill="#4d4d4d">（興奮させる）</text>
+      <path d="M104 62 L282 104" stroke="#ce0000" stroke-width="3" fill="none"/>
+      <path d="M296 108 L281 96 L278 111 Z" fill="#ce0000"/>
+      <!-- brake neuron -->
+      <circle cx="80" cy="172" r="24" fill="#e9f7f9" stroke="#006f83" stroke-width="2"/>
+      <text class="t" x="80" y="180" font-size="24" font-weight="700" text-anchor="middle" fill="#006f83">－</text>
+      <text class="t" x="80" y="213" font-size="14" font-weight="700" text-anchor="middle" fill="#006f83">ブレーキ型</text>
+      <text class="t" x="80" y="229" font-size="12" text-anchor="middle" fill="#4d4d4d">（静める）</text>
+      <path d="M104 168 L288 128" stroke="#006f83" stroke-width="3" fill="none"/>
+      <path d="M284 116 L292 140" stroke="#006f83" stroke-width="4" fill="none"/>
+      <!-- target neuron -->
+      <circle cx="322" cy="118" r="26" fill="#f2f2f2" stroke="#4d4d4d" stroke-width="2"/>
+      <text class="t" x="322" y="124" font-size="16" font-weight="700" text-anchor="middle">C</text>
+      <text class="t" x="322" y="168" font-size="13" text-anchor="middle" fill="#4d4d4d">受け取る側</text>
+      <!-- output spikes -->
+      <path d="M348 118 L640 118" stroke="#4d4d4d" stroke-width="2"/>
+      <g stroke="#1a1a1a" stroke-width="3" stroke-linecap="round">
+        <path d="M392 118 L392 84"/>
+        <path d="M430 118 L430 84"/>
+        <path d="M458 118 L458 84"/>
+        <path d="M510 118 L510 84"/>
+        <path d="M541 118 L541 84"/>
+        <path d="M590 118 L590 84"/>
+      </g>
+      <text class="t" x="392" y="72" font-size="13" text-anchor="middle">パチッ</text>
+      <text class="t" x="510" y="72" font-size="13" text-anchor="middle">パチッ</text>
+      <text class="t" x="400" y="148" font-size="13" fill="#4d4d4d">スパイク（電気のパチッ）</text>
+      <text class="t" x="400" y="167" font-size="13" fill="#4d4d4d">1&nbsp;秒あたりの回数 ＝ Hz（ヘルツ）</text>
+      <text class="t" x="640" y="140" font-size="12" text-anchor="end" fill="#767676">時間 →</text>
+    </svg>
+    <figcaption><span class="fig-no">図 2</span>アクセルとブレーキ。C は、アクセル型からの信号がブレーキ型からの信号を十分に上回ると「パチッ」とスパイクを出す。どちらの型かを決める情報（神経伝達物質の種類）が、配線図の中で間違っていることがある。</figcaption>
+  </figure>
+
+  <h3>配線図だけで、実際のハエの反応が予測できた</h3>
+  <div class="fig-side">
+    <figure>
+      <img src="img/fly_proboscis.png" alt="3D で描いたハエが、ストローのような口（口吻）を砂糖水の滴に伸ばしている">
+      <figcaption><span class="fig-no">図 3</span>説明用動画の 3D のハエ（CG によるイメージ）。口吻（こうふん）を砂糖水の滴に伸ばしている。</figcaption>
+    </figure>
+    <div>
+      <p>このモデルで、<strong>砂糖を感じるニューロン</strong>を人工的にパチパチさせる（＝砂糖をなめたことにする）と、<strong>口吻（ハエのストローのような口）を伸ばす運動ニューロン「MN9」</strong>が活動しました。本物のハエも、甘いものに触れると口吻を伸ばします。</p>
+      <p>Shiu らはこのような予測を数多く行い、その多くが実際のハエの実験で確かめられました。「配線図さえあれば、脳の働きをかなり予測できるかもしれない」と注目された理由です。</p>
+    </div>
+  </div>
+
+  <div class="box note">
+    <div class="box-title">私たちが最初にしたこと</div>
+    <p>このモデルを、画像処理用の高速な計算装置（GPU）で動く形に作り直しました。元のプログラムと比べて、ニューロン 1&nbsp;個ずつの活動の強さまで一致することを確かめています（一致度を表す相関係数 r が 0.999 以上。最大値は 1）。1&nbsp;秒分の模擬実験が約 0.2&nbsp;秒で計算できるため、一日で多くの条件を試すことができました。</p>
+  </div>
+</section>
+
+<!-- ======================= 3 ======================= -->
+<section id="s3">
+  <h2><span class="secno">3</span>この研究の問い：左右で答え合わせ（鏡像テスト）</h2>
+
+  <p>ハエの脳は、人の脳と同じように<strong>左右がほぼ鏡写し</strong>になっています。左にある種類のニューロンは右にも 1&nbsp;組ずつあり、つながる相手もほとんど共通していることが、配線図の研究で知られています。</p>
+  <p>だとすれば、<strong>同じ実験を脳の右側から行っても、同じ答えになるはず</strong>です。ところが、これまでのシミュレーションは、ほとんどが片側だけを刺激して行われていました。そこで私たちは、Shiu らが実験で確認した 6&nbsp;つの予測を、左右それぞれから行い、答えが一致するかを確かめました。これを<strong>鏡像テスト</strong>と呼びます。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 280" role="img" aria-label="実験 1 は左の砂糖センサーを、実験 2 は右の砂糖センサーを刺激し、どちらも MN9 が活動して口吻を伸ばすはず、という鏡像テストの考え方の図">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <defs>
+        <clipPath id="cl1"><rect x="0" y="0" width="160" height="280"/></clipPath>
+        <clipPath id="cr1"><rect x="160" y="0" width="200" height="280"/></clipPath>
+        <clipPath id="cl2"><rect x="300" y="0" width="200" height="280"/></clipPath>
+        <clipPath id="cr2"><rect x="500" y="0" width="200" height="280"/></clipPath>
+      </defs>
+      <!-- panel 1 -->
+      <text class="t" x="160" y="20" font-size="15" font-weight="700" text-anchor="middle">実験 1：<tspan fill="#0017c1">左</tspan>の砂糖センサーを刺激</text>
+      <ellipse cx="160" cy="118" rx="140" ry="72" fill="#e8f1fe" stroke="#0017c1" stroke-width="2" clip-path="url(#cl1)"/>
+      <ellipse cx="160" cy="118" rx="140" ry="72" fill="#ffeee2" stroke="#c74700" stroke-width="2" clip-path="url(#cr1)"/>
+      <path d="M160 40 L160 196" stroke="#4d4d4d" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text class="t" x="92" y="88" font-size="13" text-anchor="middle" fill="#0017c1">左半分</text>
+      <text class="t" x="228" y="88" font-size="13" text-anchor="middle" fill="#c74700">右半分</text>
+      <circle cx="78" cy="138" r="14" fill="#0017c1"/>
+      <text class="t" x="78" y="116" font-size="12" text-anchor="middle" fill="#0017c1" font-weight="700">砂糖センサー</text>
+      <circle cx="242" cy="138" r="14" fill="#ffffff" stroke="#c74700" stroke-width="2"/>
+      <path d="M92 142 C120 160 140 180 154 208" stroke="#0017c1" stroke-width="3" fill="none"/>
+      <path d="M157 216 L148 205 L160 202 Z" fill="#0017c1"/>
+      <path d="M8 138 L56 138" stroke="#1a1a1a" stroke-width="2"/>
+      <path d="M62 138 L54 133 L54 143 Z" fill="#1a1a1a"/>
+      <text class="t" x="8" y="162" font-size="12">刺激</text>
+      <rect x="110" y="218" width="100" height="30" rx="6" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+      <text class="t" x="160" y="238" font-size="13" font-weight="700" text-anchor="middle">MN9</text>
+      <text class="t" x="160" y="272" font-size="13" text-anchor="middle">予想：口吻を伸ばす指令が出る</text>
+
+      <!-- equals -->
+      <text class="t" x="330" y="128" font-size="28" font-weight="700" text-anchor="middle" fill="#4d4d4d">＝？</text>
+
+      <!-- panel 2 -->
+      <text class="t" x="500" y="20" font-size="15" font-weight="700" text-anchor="middle">実験 2：<tspan fill="#c74700">右</tspan>の砂糖センサーを刺激</text>
+      <ellipse cx="500" cy="118" rx="140" ry="72" fill="#e8f1fe" stroke="#0017c1" stroke-width="2" clip-path="url(#cl2)"/>
+      <ellipse cx="500" cy="118" rx="140" ry="72" fill="#ffeee2" stroke="#c74700" stroke-width="2" clip-path="url(#cr2)"/>
+      <path d="M500 40 L500 196" stroke="#4d4d4d" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text class="t" x="432" y="88" font-size="13" text-anchor="middle" fill="#0017c1">左半分</text>
+      <text class="t" x="568" y="88" font-size="13" text-anchor="middle" fill="#c74700">右半分</text>
+      <circle cx="418" cy="138" r="14" fill="#ffffff" stroke="#0017c1" stroke-width="2"/>
+      <circle cx="582" cy="138" r="14" fill="#c74700"/>
+      <text class="t" x="582" y="116" font-size="12" text-anchor="middle" fill="#c74700" font-weight="700">砂糖センサー</text>
+      <path d="M568 142 C540 160 520 180 506 208" stroke="#c74700" stroke-width="3" fill="none"/>
+      <path d="M503 216 L500 202 L512 205 Z" fill="#c74700"/>
+      <path d="M652 138 L604 138" stroke="#1a1a1a" stroke-width="2"/>
+      <path d="M598 138 L606 133 L606 143 Z" fill="#1a1a1a"/>
+      <text class="t" x="652" y="162" font-size="12" text-anchor="end">刺激</text>
+      <rect x="450" y="218" width="100" height="30" rx="6" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.5"/>
+      <text class="t" x="500" y="238" font-size="13" font-weight="700" text-anchor="middle">MN9</text>
+      <text class="t" x="500" y="272" font-size="13" text-anchor="middle">予想：口吻を伸ばす指令が出る</text>
+    </svg>
+    <figcaption><span class="fig-no">図 4</span>鏡像テストの考え方。同じ脳・同じ刺激・同じ読み取り方で、違うのは「どちら側から刺激したか」だけ。脳は正面から見た模式図で、点線がまん中の線。MN9 は左右に 1&nbsp;個ずつあり、その平均で判定した。</figcaption>
+  </figure>
+
+  <p>確かめた 6&nbsp;つの予測（専門用語で<strong>ベンチマーク</strong>）は次のとおりです。どれも Shiu らが示し、実際のハエの実験でも確かめられているものです。</p>
+  <ul class="plain">
+    <li><strong>味の 3&nbsp;つ</strong>：① 砂糖を感じるニューロンで MN9 が活動する。② そこに苦味を感じるニューロンの刺激を加えると、MN9 の活動が抑えられる。③ 別の味覚センサー（Ir94e という種類）を加えても抑えられる。</li>
+    <li><strong>触角の 3&nbsp;つ</strong>：触角の付け根にある、揺れを感じる器官（ジョンストン器官、略して JO）を刺激すると、触角の掃除（グルーミング）にかかわるニューロンが活動する。④ 同じ側の aBN1。⑤⑥ 反対側の aDN1 と aDN2。</li>
+  </ul>
+  <p class="small">刺激するニューロンは「種類」単位で決めました（例：左の砂糖センサーは 2&nbsp;つの種類に属する 33&nbsp;個すべて、触角の JO は 229&nbsp;個）。Shiu らが実験に合わせて選んだ組（砂糖 21&nbsp;個、JO 70&nbsp;個）とは少し違います。</p>
+</section>
+
+<!-- ======================= 4 ======================= -->
+<section id="s4">
+  <h2><span class="secno">4　わかったこと①</span>右から刺激すると、予測がすべて外れた</h2>
+
+  <p>左から刺激すると、6&nbsp;つの予測はすべて再現されました。ところが、<strong>まったく同じ実験を右から行うと、6&nbsp;つすべてが外れました</strong>。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>予測</th><th>合格ライン</th><th class="num"><span class="side-l">左</span>から刺激</th><th class="num"><span class="side-r">右</span>から刺激</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>① 砂糖 → MN9（口吻を伸ばす）</td><td>20&nbsp;Hz より上</td><td class="num">58&nbsp;Hz <span class="pass">合格</span></td><td class="num">0.4&nbsp;Hz <span class="fail">不合格</span><br><small>（暴走）</small></td></tr>
+        <tr><td>② 苦味で抑える</td><td>50% より多く抑える</td><td class="num">89% 抑制 <span class="pass">合格</span></td><td class="num"><span class="fail">不合格</span><br><small>（①が不成立）</small></td></tr>
+        <tr><td>③ Ir94e で抑える</td><td>50% より多く抑える</td><td class="num">78% 抑制 <span class="pass">合格</span></td><td class="num"><span class="fail">不合格</span><br><small>（①が不成立）</small></td></tr>
+        <tr><td>④ 触角 → aBN1（同じ側）</td><td>20&nbsp;Hz より上</td><td class="num">68&nbsp;Hz <span class="pass">合格</span></td><td class="num">10.5&nbsp;Hz <span class="fail">不合格</span></td></tr>
+        <tr><td>⑤ 触角 → aDN1（反対側）</td><td>10&nbsp;Hz より上</td><td class="num">29&nbsp;Hz <span class="pass">合格</span></td><td class="num">0&nbsp;Hz <span class="fail">不合格</span></td></tr>
+        <tr><td>⑥ 触角 → aDN2（反対側）</td><td>10&nbsp;Hz より上</td><td class="num">33&nbsp;Hz <span class="pass">合格</span></td><td class="num">0&nbsp;Hz <span class="fail">不合格</span></td></tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap"><span class="fig-no">表 2</span>6&nbsp;つの予測の結果。味覚ニューロンは 1&nbsp;秒に 100&nbsp;回、触角の JO は 1&nbsp;秒に 150&nbsp;回のペースで刺激し、1&nbsp;秒間の模擬実験を 8〜10&nbsp;回繰り返した平均。</div>
+  </div>
+
+  <h3>口吻の指令の代わりに、脳が「暴走」した</h3>
+  <p>右の砂糖センサーを刺激すると、MN9 はほとんど反応しませんでした。代わりに起きたのが<strong>暴走</strong>です。興奮が次々に飛び火して、脳の広い範囲のニューロンが発火し続ける状態で、<strong>8,612&nbsp;個</strong>のニューロンが発火しました。左から刺激したときの 412&nbsp;個の約 21&nbsp;倍です（脳全体は 138,639&nbsp;個。この研究では 2,000&nbsp;個を超えて発火した状態を「暴走」と呼んでいます）。</p>
+
+  <figure>
+    <img src="img/brain_left_right.png" alt="脳を正面から見た 2 枚の図。左の砂糖センサーを刺激した側はわずかに光るだけだが、右の砂糖センサーを刺激した側は脳の広い範囲が明るく光り、暴走と書かれている">
+    <figcaption><span class="fig-no">図 5</span>研究紹介動画の 1 コマ。脳を正面から見た図で、明るい点ほど活発に発火しているニューロン。左図は左の砂糖センサー、右図は右の砂糖センサーを刺激したとき。同じ刺激でも、右からでは脳の広い範囲が光っている。</figcaption>
+  </figure>
+
+  <p>暴走は、刺激を始めてしばらくは左と似た反応をしたあと、突然始まりました。始まる時刻は試行ごとにばらつき、3&nbsp;回の試行で 59、135、414&nbsp;ミリ秒後でした。</p>
+
+  <div class="box note">
+    <div class="box-title">計算ミスではないか？</div>
+    <p>私たちが作り直したプログラムの不具合を疑い、Shiu らの元のプログラムでも同じ実験をしました。元のプログラムでも右からの刺激で暴走が起き（刺激したニューロンを除いて 8,742&nbsp;個が発火、MN9 は 0.55&nbsp;Hz）、作り直しのせいではないことを確かめました。</p>
+  </div>
+</section>
+
+<!-- ======================= 5 ======================= -->
+<section id="s5">
+  <h2><span class="secno">5　わかったこと②</span>原因は、配線図の左右の違い</h2>
+
+  <p>右で何が違うのかを配線図の中で調べると、いくつかの左右の違いが見つかりました。どちらの側が正しいのかは本当はわかりませんが、同じ種類の細胞でこれほど違うのは不自然で、ハエの脳そのものというより、<strong>おそらく配線図を作る過程でのミス</strong>と考えられます。それに加えて、左右両方にある「アクセルとブレーキの判定ミス」の疑いが、暴走を大きくしていました。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 250" role="img" aria-label="右の失敗にかかわる 3&nbsp;種類の問題。1 入力側のつなぎ目の見落とし、2 読み出し側の入力の見落とし、3 ブレーキとアクセルの取り違え">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <!-- card frames -->
+      <rect x="1" y="1" width="206" height="248" rx="8" fill="#ffffff" stroke="#cccccc" stroke-width="1.5"/>
+      <rect x="227" y="1" width="206" height="248" rx="8" fill="#ffffff" stroke="#cccccc" stroke-width="1.5"/>
+      <rect x="453" y="1" width="206" height="248" rx="8" fill="#ffffff" stroke="#cccccc" stroke-width="1.5"/>
+      <!-- titles -->
+      <text class="t" x="16" y="28" font-size="14" font-weight="700">① 入力側の見落とし</text>
+      <text class="t" x="242" y="28" font-size="14" font-weight="700">② 読み出し側の見落とし</text>
+      <text class="t" x="468" y="28" font-size="14" font-weight="700">③ ブレーキ↔アクセル</text>
+
+      <!-- card 1: sensor with missing synapses -->
+      <circle cx="40" cy="105" r="16" fill="#c74700"/>
+      <path d="M56 105 L130 105" stroke="#c74700" stroke-width="2.5"/>
+      <path d="M130 105 C145 105 150 66 166 66 M130 105 C145 105 150 92 166 92 M130 105 C145 105 150 118 166 118 M130 105 C145 105 150 144 166 144" stroke="#c74700" stroke-width="2" fill="none"/>
+      <circle cx="172" cy="66" r="6" fill="#c74700"/>
+      <circle cx="172" cy="92" r="6" fill="#c74700"/>
+      <circle cx="172" cy="118" r="6" fill="#ffffff" stroke="#767676" stroke-width="1.5" stroke-dasharray="3 2"/>
+      <circle cx="172" cy="144" r="6" fill="#ffffff" stroke="#767676" stroke-width="1.5" stroke-dasharray="3 2"/>
+      <text class="t" x="40" y="140" font-size="11" text-anchor="middle" fill="#4d4d4d">砂糖</text>
+      <text class="t" x="40" y="154" font-size="11" text-anchor="middle" fill="#4d4d4d">センサー</text>
+      <text class="t" x="128" y="172" font-size="11" fill="#767676">点線＝見つかって</text>
+      <text class="t" x="128" y="186" font-size="11" fill="#767676">いないつなぎ目</text>
+      <text class="t" x="16" y="210" font-size="13">右の砂糖センサーの</text>
+      <text class="t" x="16" y="228" font-size="13">つなぎ目が約半分（0.47&nbsp;倍）</text>
+
+      <!-- card 2: readout with missing inputs -->
+      <circle cx="390" cy="105" r="18" fill="#ffffff" stroke="#c74700" stroke-width="2.5"/>
+      <text class="t" x="390" y="110" font-size="11" font-weight="700" text-anchor="middle" fill="#c74700">aBN1</text>
+      <path d="M252 66 L368 98" stroke="#c74700" stroke-width="2.5"/>
+      <path d="M252 92 L368 102" stroke="#999999" stroke-width="2" stroke-dasharray="4 3"/>
+      <path d="M252 118 L368 108" stroke="#999999" stroke-width="2" stroke-dasharray="4 3"/>
+      <path d="M252 144 L368 112" stroke="#999999" stroke-width="2" stroke-dasharray="4 3"/>
+      <text class="t" x="252" y="172" font-size="11" fill="#767676">点線＝見つかっていない入力</text>
+      <text class="t" x="242" y="210" font-size="13">右の aBN1 に入る</text>
+      <text class="t" x="242" y="228" font-size="13">つなぎ目が約 4&nbsp;分の 1</text>
+
+      <!-- card 3: sign swap -->
+      <circle cx="505" cy="100" r="22" fill="#e9f7f9" stroke="#006f83" stroke-width="2"/>
+      <text class="t" x="505" y="108" font-size="22" font-weight="700" text-anchor="middle" fill="#006f83">－</text>
+      <text class="t" x="505" y="140" font-size="11" text-anchor="middle" fill="#006f83">本来ブレーキ役</text>
+      <text class="t" x="505" y="154" font-size="11" text-anchor="middle" fill="#006f83">と考えられる</text>
+      <path d="M534 100 L568 100" stroke="#4d4d4d" stroke-width="2"/>
+      <path d="M576 100 L566 94 L566 106 Z" fill="#4d4d4d"/>
+      <circle cx="606" cy="100" r="22" fill="#fdeeee" stroke="#ce0000" stroke-width="2"/>
+      <text class="t" x="606" y="108" font-size="22" font-weight="700" text-anchor="middle" fill="#ce0000">＋</text>
+      <text class="t" x="606" y="140" font-size="11" text-anchor="middle" fill="#ce0000">モデルでは</text>
+      <text class="t" x="606" y="154" font-size="11" text-anchor="middle" fill="#ce0000">アクセル扱い</text>
+      <text class="t" x="468" y="192" font-size="13">においの中継所の 40&nbsp;個を</text>
+      <text class="t" x="468" y="210" font-size="13">AI が「セロトニン」と推定</text>
+      <text class="t" x="468" y="228" font-size="13">→ アクセルとして計算</text>
+    </svg>
+    <figcaption><span class="fig-no">図 6</span>右の失敗にかかわる 3&nbsp;種類の問題。①②は左右の違い（おそらくつなぎ目の見落とし）、③は左右両方にある伝達物質の判定ミスの疑い。地図アプリでいえば、①②は「描き忘れた道」、③は「赤信号が青信号として描かれている」状態にあたる。</figcaption>
+  </figure>
+
+  <h3>原因 1：右の砂糖センサーのつなぎ目が、左の半分ほどしかない</h3>
+  <p>砂糖を感じるニューロン 1&nbsp;個あたりのつなぎ目（出力側のシナプス）は、左が平均 265&nbsp;個、右は 125&nbsp;個で、<strong>右は左の 0.47&nbsp;倍</strong>しかありませんでした。登録されているニューロンの数も右のほうが少なく（左 33&nbsp;個、右 24&nbsp;個）、合計すると左 8,800&nbsp;個に対して右 3,000&nbsp;個です。苦味（0.64&nbsp;倍）、Ir94e（0.73&nbsp;倍）、水を感じるニューロン（0.36&nbsp;倍）でも右が少なかった一方、触角の JO では差がありませんでした（1.18&nbsp;倍）。</p>
+  <p>本当にこれが原因なのかを確かめるため、<strong>正常に動く左側から、つなぎ目をランダムに抜いていく</strong>実験をしました。すると、つなぎ目が 5,000&nbsp;個を下回るあたりから MN9 の活動が急に落ち、右と同じ 3,000&nbsp;個まで減らすと 1〜10&nbsp;Hz になりました。右で実際に測った 1.3&nbsp;Hz とよく合います。つまり、<strong>右側は「つなぎ目が抜けた左側」と同じようにふるまっている</strong>のです。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 300" role="img" aria-label="左のグラフ：砂糖センサー 1&nbsp;個あたりのつなぎ目は左 265&nbsp;個、右 125&nbsp;個。右のグラフ：左の砂糖センサーからつなぎ目を抜いていくと MN9 の活動が下がり、右と同じ 3,000&nbsp;個では右の実測値 1.3&nbsp;Hz とほぼ同じになる">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <!-- left panel: bars -->
+      <text class="t" x="0" y="24" font-size="14" font-weight="700">1&nbsp;個あたりのつなぎ目（平均）</text>
+      <text class="t" x="0" y="82" font-size="14" font-weight="700" fill="#0017c1">左</text>
+      <rect x="28" y="62" width="199" height="28" rx="4" fill="#0017c1"/>
+      <text class="t" x="28" y="112" font-size="13">265&nbsp;個</text>
+      <text class="t" x="0" y="152" font-size="14" font-weight="700" fill="#c74700">右</text>
+      <rect x="28" y="132" width="94" height="28" rx="4" fill="#c74700"/>
+      <text class="t" x="28" y="182" font-size="13">125&nbsp;個（左の 0.47&nbsp;倍）</text>
+      <line x1="28" y1="54" x2="28" y2="166" stroke="#4d4d4d" stroke-width="1.5"/>
+      <text class="t" x="0" y="226" font-size="13" fill="#4d4d4d">合計（センサー全体）</text>
+      <text class="t" x="0" y="246" font-size="13"><tspan fill="#0017c1" font-weight="700">左</tspan> 8,800&nbsp;個（ニューロン 33&nbsp;個）</text>
+      <text class="t" x="0" y="266" font-size="13"><tspan fill="#c74700" font-weight="700">右</tspan> 3,000&nbsp;個（ニューロン 24&nbsp;個）</text>
+
+      <!-- right panel: line chart -->
+      <!-- grid -->
+      <g stroke="#e6e6e6" stroke-width="1">
+        <line x1="320" y1="70" x2="640" y2="70"/>
+        <line x1="320" y1="130" x2="640" y2="130"/>
+      </g>
+      <line x1="320" y1="190" x2="640" y2="190" stroke="#767676" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text class="t" x="640" y="184" font-size="12" text-anchor="end" fill="#4d4d4d">合格ライン 20&nbsp;Hz</text>
+      <!-- axes -->
+      <line x1="320" y1="250" x2="640" y2="250" stroke="#4d4d4d" stroke-width="1.5"/>
+      <line x1="320" y1="40" x2="320" y2="250" stroke="#4d4d4d" stroke-width="1.5"/>
+      <g class="t" font-size="12" fill="#4d4d4d">
+        <text x="312" y="254" text-anchor="end" class="t" fill="#4d4d4d">0</text>
+        <text x="312" y="194" text-anchor="end" class="t" fill="#4d4d4d">20</text>
+        <text x="312" y="134" text-anchor="end" class="t" fill="#4d4d4d">40</text>
+        <text x="312" y="74" text-anchor="end" class="t" fill="#4d4d4d">60</text>
+        <text x="320" y="268" text-anchor="middle" class="t" fill="#4d4d4d">0</text>
+        <text x="391" y="268" text-anchor="middle" class="t" fill="#4d4d4d">2,000</text>
+        <text x="462" y="268" text-anchor="middle" class="t" fill="#4d4d4d">4,000</text>
+        <text x="533" y="268" text-anchor="middle" class="t" fill="#4d4d4d">6,000</text>
+        <text x="604" y="268" text-anchor="middle" class="t" fill="#4d4d4d">8,000</text>
+      </g>
+      <text class="t" x="480" y="292" font-size="13" text-anchor="middle">砂糖センサーのつなぎ目の合計（個）</text>
+      <text class="t" x="270" y="44" font-size="12" fill="#4d4d4d">MN9 の</text>
+      <text class="t" x="270" y="60" font-size="12" fill="#4d4d4d">活動（Hz）</text>
+      <!-- legend -->
+      <line x1="336" y1="16" x2="360" y2="16" stroke="#0017c1" stroke-width="2.5"/>
+      <circle cx="348" cy="16" r="4" fill="#0017c1"/>
+      <text class="t" x="366" y="20" font-size="12">左からつなぎ目を抜いていった場合</text>
+      <path d="M348 30 L354 36 L348 42 L342 36 Z" fill="#c74700"/>
+      <text class="t" x="366" y="40" font-size="12">右（そのまま）</text>
+      <!-- curve -->
+      <polyline fill="none" stroke="#0017c1" stroke-width="2.5" stroke-linejoin="round"
+        points="382.3,250 413.4,247.3 444.6,219.4 475.7,164.2 506.9,125.8 538,97.9 569.1,88 600.3,74.2 631.4,67.9"/>
+      <g fill="#0017c1" stroke="#ffffff" stroke-width="1.5">
+        <circle cx="382.3" cy="250" r="4.5"/>
+        <circle cx="413.4" cy="247.3" r="4.5"/>
+        <circle cx="444.6" cy="219.4" r="4.5"/>
+        <circle cx="475.7" cy="164.2" r="4.5"/>
+        <circle cx="506.9" cy="125.8" r="4.5"/>
+        <circle cx="538" cy="97.9" r="4.5"/>
+        <circle cx="569.1" cy="88" r="4.5"/>
+        <circle cx="600.3" cy="74.2" r="4.5"/>
+        <circle cx="631.4" cy="67.9" r="4.5"/>
+      </g>
+      <text class="t" x="640" y="58" font-size="12" text-anchor="end" fill="#4d4d4d">元の左（8,800&nbsp;個）</text>
+      <!-- right observed -->
+      <path d="M426.7 239 L433 246 L426.7 253 L420.4 246 Z" fill="#c74700" stroke="#ffffff" stroke-width="1.5"/>
+      <line x1="372" y1="140" x2="422" y2="236" stroke="#c74700" stroke-width="1.2"/>
+      <text class="t" x="328" y="112" font-size="12" font-weight="700" fill="#c74700">右の実測</text>
+      <text class="t" x="328" y="128" font-size="12" fill="#1a1a1a">3,000&nbsp;個で 1.3&nbsp;Hz</text>
+    </svg>
+    <figcaption><span class="fig-no">図 7</span>原因 1 の確認。左：砂糖センサー 1&nbsp;個あたりのつなぎ目の数。右：左の砂糖センサーから、つなぎ目を 10% ずつランダムに抜いていったときの MN9 の活動（点は抜く割合 0〜80%、3&nbsp;回の平均）。右側の実際の値（◆）は、左から同じ数まで抜いた場合とほぼ重なる。比較はどちらも、暴走を止める補正（触角葉の 40&nbsp;個をブレーキに）をした状態で行った。</figcaption>
+  </figure>
+
+  <p>左右の同じ種類のニューロンの間で、つなぎ目の数が 2&nbsp;倍も違うのは不自然です。しかも触角の JO では差がありません。どちらの側が正しいかを今すぐ確かめる方法はありませんが、右の味覚ニューロンの「電線」のたどり残しや、その部分の画像でのつなぎ目の見落としの可能性が高い、と私たちは考えています。なお、つなぎ目の不足だけでは暴走は起きません。左のつなぎ目を 90% まで削っても、発火したニューロンは最大 418&nbsp;個でした。</p>
+
+  <h3>原因 2：触角掃除のニューロン aBN1 への入力が、右では 4&nbsp;分の 1</h3>
+  <p>触角の予測の読み取り役である aBN1 に入ってくるつなぎ目は、左が 1,833&nbsp;個、右は 459&nbsp;個で、<strong>右は左の 0.25&nbsp;倍</strong>でした。触角の JO から aBN1 へ直接つながるつなぎ目も、左 103&nbsp;個に対して右 35&nbsp;個です。原因 1 が「信号を送る側」の見落としだったのに対し、こちらは「信号を受け取る側」の見落としです。</p>
+
+  <h3>原因 3：暴走には「入口」と「増幅器」の両方が必要だった</h3>
+  <p>暴走がどこから広がるのかを、スパイクの順番をたどって調べました。すると、興奮は最初は左と同じ味の回路を通り、その後、においの情報を処理する中継所（<strong>触角葉</strong>）の中にある「局所ニューロン」を通って脳全体へ飛び火していました。さらに調べると、暴走には次の 2&nbsp;つがそろう必要があることがわかりました。</p>
+  <p><strong>入口：右の砂糖センサーのうちの 1&nbsp;個。</strong>右の砂糖センサー 24&nbsp;個を 1&nbsp;個ずつ外して刺激してみると、ある 1&nbsp;個を外したときだけ暴走が消えました（発火したニューロン 8,522&nbsp;個 → 58&nbsp;個）。この 1&nbsp;個は、出力のつなぎ目 154&nbsp;個のうち 22&nbsp;個を触角葉の局所ニューロンに出していました。左の同じ種類の砂糖センサーでは、多くても 3&nbsp;個です。これが地図の作成ミスなのか、このハエの本当の個性なのかは、わかりません。</p>
+  <p><strong>増幅器：アクセル扱いの 40&nbsp;個。</strong>触角葉の局所ニューロンのうち 40&nbsp;個（左右に 20&nbsp;個ずつ）は、AI によって<strong>セロトニン</strong>を出すと推定されていました。モデルはセロトニンを<strong>アクセル</strong>として扱います。ところが、これまでの生物学の研究では、触角葉の局所ニューロンの多くは<strong>ブレーキ役</strong>（GABA やグルタミン酸を出す型）です。また、触角葉に入るセロトニンのニューロンとして知られているのは、片側 1&nbsp;個ずつの「CSD ニューロン」だけで、これは局所ニューロンではありません。さらに、この 40&nbsp;個に対する AI の推定の確信度は低めでした（中央値 0.35。GABA と推定された局所ニューロンでは 0.52）。この 40&nbsp;個をブレーキに直すと暴走は消え（8,680&nbsp;個 → 236&nbsp;個）、左側の 6&nbsp;つの予測は変わりませんでした。</p>
+  <p>入口と増幅器は、<strong>どちらか一方を取り除くだけで暴走が消えます</strong>。増幅器は左右両方にあるので、右だけで暴走が起きる理由は、右にだけある入口です。一方、つなぎ目の不足（原因 1）だけでは暴走は起きませんでした。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 312" role="img" aria-label="公開された配線図のままでは、入口となる右の砂糖センサー 1&nbsp;個と、アクセル扱いの触角葉の 40&nbsp;個がそろって暴走が起きる。入口の 1&nbsp;個を外すと 58&nbsp;個、40&nbsp;個をブレーキに直すと 236&nbsp;個で止まる">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <!-- Row A -->
+      <text class="t" x="0" y="16" font-size="14" font-weight="700">公開された配線図のまま（右から砂糖の刺激）</text>
+      <rect x="0" y="26" width="138" height="60" rx="6" fill="#ffeee2" stroke="#c74700" stroke-width="1.5"/>
+      <text class="t" x="69" y="51" font-size="13" text-anchor="middle">砂糖センサー</text>
+      <text class="t" x="69" y="70" font-size="13" text-anchor="middle">（右）24&nbsp;個</text>
+      <rect x="166" y="26" width="138" height="60" rx="6" fill="#ffffff" stroke="#c74700" stroke-width="2.5"/>
+      <text class="t" x="235" y="45" font-size="12" text-anchor="middle" font-weight="700" fill="#c74700">入口：うち 1&nbsp;個が</text>
+      <text class="t" x="235" y="61" font-size="12" text-anchor="middle">触角葉へ</text>
+      <text class="t" x="235" y="77" font-size="12" text-anchor="middle">つなぎ目 22&nbsp;個</text>
+      <rect x="332" y="26" width="138" height="60" rx="6" fill="#fdeeee" stroke="#ce0000" stroke-width="2.5"/>
+      <text class="t" x="401" y="45" font-size="12" text-anchor="middle" font-weight="700" fill="#ce0000">増幅器</text>
+      <text class="t" x="401" y="61" font-size="12" text-anchor="middle">触角葉の 40&nbsp;個</text>
+      <text class="t" x="401" y="77" font-size="12" text-anchor="middle" fill="#ce0000">＋ アクセル扱い</text>
+      <rect x="498" y="26" width="162" height="60" rx="6" fill="#ce0000"/>
+      <text class="t" x="579" y="51" font-size="13" text-anchor="middle" font-weight="700" fill="#ffffff">脳全体へ飛び火</text>
+      <text class="t" x="579" y="70" font-size="13" text-anchor="middle" fill="#ffffff">8,500&nbsp;個以上が発火</text>
+      <path d="M140 56 L157 56" stroke="#4d4d4d" stroke-width="2"/><path d="M164 56 L156 51 L156 61 Z" fill="#4d4d4d"/>
+      <path d="M306 56 L323 56" stroke="#c74700" stroke-width="2.5"/><path d="M330 56 L322 50 L322 62 Z" fill="#c74700"/>
+      <path d="M472 56 L489 56" stroke="#ce0000" stroke-width="3"/><path d="M496 56 L488 50 L488 62 Z" fill="#ce0000"/>
+
+      <!-- Row B -->
+      <text class="t" x="0" y="124" font-size="14" font-weight="700">入口の 1&nbsp;個を外して刺激すると</text>
+      <rect x="0" y="134" width="138" height="60" rx="6" fill="#ffeee2" stroke="#c74700" stroke-width="1.5"/>
+      <text class="t" x="69" y="159" font-size="13" text-anchor="middle">砂糖センサー</text>
+      <text class="t" x="69" y="178" font-size="13" text-anchor="middle">（右）23&nbsp;個</text>
+      <rect x="166" y="134" width="138" height="60" rx="6" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text class="t" x="235" y="169" font-size="13" text-anchor="middle" fill="#767676">入口なし</text>
+      <rect x="332" y="134" width="138" height="60" rx="6" fill="#ffffff" stroke="#ce0000" stroke-width="1.5"/>
+      <text class="t" x="401" y="153" font-size="12" text-anchor="middle" font-weight="700" fill="#ce0000">増幅器</text>
+      <text class="t" x="401" y="169" font-size="12" text-anchor="middle">触角葉の 40&nbsp;個</text>
+      <text class="t" x="401" y="185" font-size="12" text-anchor="middle" fill="#ce0000">＋ アクセル扱い</text>
+      <rect x="498" y="134" width="162" height="60" rx="6" fill="#ffffff" stroke="#4d4d4d" stroke-width="1.5"/>
+      <text class="t" x="579" y="159" font-size="13" text-anchor="middle" font-weight="700">広がらない</text>
+      <text class="t" x="579" y="178" font-size="13" text-anchor="middle">58&nbsp;個で止まる</text>
+      <path d="M140 164 L157 164" stroke="#999999" stroke-width="2" stroke-dasharray="4 3"/>
+      <text class="t" x="318" y="169" font-size="14" text-anchor="middle" fill="#767676">×</text>
+
+      <!-- Row C -->
+      <text class="t" x="0" y="232" font-size="14" font-weight="700">増幅器の 40&nbsp;個をブレーキに直すと</text>
+      <rect x="0" y="242" width="138" height="60" rx="6" fill="#ffeee2" stroke="#c74700" stroke-width="1.5"/>
+      <text class="t" x="69" y="267" font-size="13" text-anchor="middle">砂糖センサー</text>
+      <text class="t" x="69" y="286" font-size="13" text-anchor="middle">（右）24&nbsp;個</text>
+      <rect x="166" y="242" width="138" height="60" rx="6" fill="#ffffff" stroke="#c74700" stroke-width="2.5"/>
+      <text class="t" x="235" y="261" font-size="12" text-anchor="middle" font-weight="700" fill="#c74700">入口：うち 1&nbsp;個が</text>
+      <text class="t" x="235" y="277" font-size="12" text-anchor="middle">触角葉へ</text>
+      <text class="t" x="235" y="293" font-size="12" text-anchor="middle">つなぎ目 22&nbsp;個</text>
+      <rect x="332" y="242" width="138" height="60" rx="6" fill="#e9f7f9" stroke="#006f83" stroke-width="2.5"/>
+      <text class="t" x="401" y="261" font-size="12" text-anchor="middle" font-weight="700" fill="#006f83">増幅器を修正</text>
+      <text class="t" x="401" y="277" font-size="12" text-anchor="middle">触角葉の 40&nbsp;個</text>
+      <text class="t" x="401" y="293" font-size="12" text-anchor="middle" fill="#006f83">－ ブレーキに</text>
+      <rect x="498" y="242" width="162" height="60" rx="6" fill="#ffffff" stroke="#4d4d4d" stroke-width="1.5"/>
+      <text class="t" x="579" y="267" font-size="13" text-anchor="middle" font-weight="700">広がらない</text>
+      <text class="t" x="579" y="286" font-size="13" text-anchor="middle">236&nbsp;個で止まる</text>
+      <path d="M140 272 L157 272" stroke="#4d4d4d" stroke-width="2"/><path d="M164 272 L156 267 L156 277 Z" fill="#4d4d4d"/>
+      <path d="M306 272 L323 272" stroke="#c74700" stroke-width="2.5"/><path d="M330 272 L322 266 L322 278 Z" fill="#c74700"/>
+      <path d="M472 272 L486 272" stroke="#006f83" stroke-width="3"/><path d="M488 259 L488 285" stroke="#006f83" stroke-width="4"/>
+    </svg>
+    <figcaption><span class="fig-no">図 8</span>暴走の「入口」と「増幅器」。両方がそろったときだけ暴走が起き、どちらか一方を除くと止まる。数字は発火したニューロンの数で、実験ごとに測った値（公開版の暴走は 8,522〜8,680&nbsp;個。表 2 の 8,612&nbsp;個は複数回の平均）。増幅器を直しても、左側の 6&nbsp;つの予測は変わらなかった。</figcaption>
+  </figure>
+
+  <div class="box note">
+    <div class="box-title">どのニューロンを刺激するかでも、結果が変わる</div>
+    <p>私たちは、刺激するニューロンを「種類」単位で選びました（右の砂糖センサーは 2&nbsp;つの種類に属する 24&nbsp;個すべて）。Shiu らが実験に合わせて選んだ右の砂糖センサー 9&nbsp;個は、入口の 1&nbsp;個を含みません。この 9&nbsp;個を刺激すると暴走は起きず、強い刺激（1&nbsp;秒に 150&nbsp;回以上）では MN9 も動きました（150&nbsp;回のとき 29&nbsp;Hz。左の組では 66&nbsp;Hz）。右での失敗は、どのニューロンを刺激するかにも左右されるのです。</p>
+  </div>
+
+  <div class="box key">
+    <div class="box-title">「全部まとめて直す」のは危ない</div>
+    <p>試しに、配線図の中で「セロトニン」と推定されたニューロン全部（2,201&nbsp;個）をブレーキに変えてみました。暴走は消えましたが、今度は<strong>左側の「苦味で抑える」予測が消えてしまいました</strong>。左の苦味センサー 21&nbsp;個のうち 7&nbsp;個も「セロトニン」と推定されていたためです。しかも同じ苦味センサーでも、右では 21&nbsp;個中 19&nbsp;個が「セロトニン」とされていて、左右で推定がそろっていません。根拠のある場所だけを、根拠を示して直す必要があります。</p>
+  </div>
+</section>
+
+<!-- ======================= 6 ======================= -->
+<section id="s6">
+  <h2><span class="secno">6　わかったこと③</span>直すと、6&nbsp;つのうち 4&nbsp;つが戻った</h2>
+
+  <p>見つけた違いを、モデルの中で右側を左に合わせる形で順番に「修正」し、予測が戻るかを調べました。どちらの側が正しいかはわからないので、これは<strong>「この左右の違いで右の失敗を説明できるか」</strong>を確かめる実験です。修正といっても、見落とされたつなぎ目を新たに見つけたわけではありません。足りない分を補うように、<strong>つながりの強さを左と同じ水準まで掛け算で引き上げる</strong>という、モデル上の仮の修理です（砂糖センサー 2.12&nbsp;倍、苦味 1.57&nbsp;倍、Ir94e 1.38&nbsp;倍、aBN1 への入力 3.99&nbsp;倍、MN9 への入力 1.06&nbsp;倍）。</p>
+
+  <div class="tbl-wrap">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>条件</th>
+          <th class="c">①<br>砂糖</th><th class="c">②<br>苦味</th><th class="c">③<br>Ir94e</th>
+          <th class="c">④<br>aBN1</th><th class="c">⑤<br>aDN1</th><th class="c">⑥<br>aDN2</th>
+          <th style="text-align:center">合格</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="side-l">左</span>（参考：公開されたまま）</td>
+          <td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="total">6 / 6</td></tr>
+        <tr><td><span class="side-r">右</span>：公開されたまま</td>
+          <td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="total">0 / 6</td></tr>
+        <tr><td><span class="side-r">右</span>：＋触角葉の 40&nbsp;個をブレーキに</td>
+          <td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="total">0 / 6</td></tr>
+        <tr><td><span class="side-r">右</span>：＋味覚センサーのつながりを補う</td>
+          <td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="c x">×</td><td class="c x">×</td><td class="c x">×</td><td class="total">3 / 6</td></tr>
+        <tr><td><span class="side-r">右</span>：＋aBN1 への入力を補う</td>
+          <td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="c o">○</td><td class="c x">×</td><td class="c x">×</td><td class="total">4 / 6</td></tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap"><span class="fig-no">表 3</span>右側に修正を順に積み重ねたときの結果（○＝合格、×＝不合格）。各行は、その上の行までの修正をすべて含む。</div>
+  </div>
+
+  <ul class="plain">
+    <li><strong>40&nbsp;個をブレーキにしただけ</strong>では、暴走は止まるものの反応が弱すぎて、まだ 0 / 6 でした。</li>
+    <li><strong>味覚センサーのつながりを補う</strong>と、MN9 が 47&nbsp;Hz で活動し、苦味で 85%、Ir94e で 93% 抑えられるようになりました（3 / 6）。</li>
+    <li><strong>aBN1 への入力を補う</strong>と、aBN1 が 74&nbsp;Hz で活動しました（左は 68&nbsp;Hz）。これで 4 / 6 です。</li>
+    <li>反対側の aDN1 と aDN2 だけは、修正しても 3&nbsp;Hz 程度で戻りませんでした。<strong>まだ見つけていない別の原因</strong>が残っていると考えられます。</li>
+    <li>すべての修正の後でも、右の砂糖刺激は左より多くのニューロンを動かしました（1,044&nbsp;個 対 429&nbsp;個）。左右の違いは、まだ完全には説明できていません。</li>
+  </ul>
+</section>
+
+<!-- ======================= 7 ======================= -->
+<section id="s7">
+  <h2><span class="secno">7　わかったこと④</span>誤りの種類によって、壊れ方がまったく違う</h2>
+
+  <p>地図の誤りにはいろいろな種類があります。そこで、正常に動く左側の配線図に<strong>わざと誤りを入れ</strong>、その量を少しずつ増やしたとき、左側の 5&nbsp;つの予測（砂糖で MN9、苦味と Ir94e で抑える、触角で aBN1 と aDN1）がどう変わるかを調べました。誤りの種類は 7&nbsp;つです（アクセルとブレーキの取り違えは、ランダムな入れ替えと AI の判定ミスの 2 通りで調べています。表 4 では入力側・出力側の電線の途中切れを 1 行にまとめました）。誤りの入れ方は量ごとに 3 通りずつ変え、それぞれ 8&nbsp;回の模擬実験をしています。苦味と Ir94e で抑える予測は、砂糖の反応が残っている間だけ評価しました。</p>
+
+  <p>結果は、誤りの種類によってまったく違いました。<strong>存在しないつなぎ目（偽の道）を 80% 足しても、答えはまったく変わりませんでした</strong>。ところが、<strong>本物のつなぎ目を脳全体で一様に見落とすと、多くの予測は 14〜24% の見落としで半分</strong>になりました。最も弱かったのは触角掃除の指令にかかわる aDN1 で、14% で半分です。砂糖で口吻を伸ばす反応は、20% の見落としで半分（52%）、30% で 8%、40% でゼロになりました。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 252" role="img" aria-label="砂糖で口吻を伸ばす反応の大きさ。誤りなしを 100% とすると、偽のつなぎ目を 80% 追加しても 100%、つなぎ目を 20% 見落とすと 52%、30% で 8%、40% で 0%">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <text class="t" x="0" y="16" font-size="14" font-weight="700">砂糖で口吻を伸ばす反応（MN9）の大きさ　誤りのない配線図＝100%</text>
+      <g stroke="#e6e6e6" stroke-width="1">
+        <line x1="385" y1="32" x2="385" y2="228"/>
+        <line x1="530" y1="32" x2="530" y2="228"/>
+      </g>
+      <line x1="240" y1="32" x2="240" y2="228" stroke="#4d4d4d" stroke-width="1.5"/>
+      <text class="t" x="240" y="246" font-size="12" text-anchor="middle" fill="#4d4d4d">0%</text>
+      <text class="t" x="385" y="246" font-size="12" text-anchor="middle" fill="#4d4d4d">50%</text>
+      <text class="t" x="530" y="246" font-size="12" text-anchor="middle" fill="#4d4d4d">100%</text>
+      <text class="t" x="228" y="56" font-size="13" text-anchor="end">誤りなし（元の配線図）</text>
+      <rect x="240" y="40" width="290" height="22" rx="3" fill="#999999"/>
+      <text class="t" x="538" y="56" font-size="13">100%</text>
+      <text class="t" x="228" y="96" font-size="13" text-anchor="end">偽のつなぎ目を 80% 追加</text>
+      <rect x="240" y="80" width="290" height="22" rx="3" fill="#0017c1"/>
+      <text class="t" x="538" y="96" font-size="13">100%（変化なし）</text>
+      <text class="t" x="228" y="136" font-size="13" text-anchor="end">本物のつなぎ目を 20% 見落とし</text>
+      <rect x="240" y="120" width="150.8" height="22" rx="3" fill="#0017c1"/>
+      <text class="t" x="398" y="136" font-size="13" font-weight="700">52%</text>
+      <text class="t" x="228" y="176" font-size="13" text-anchor="end">30% 見落とし</text>
+      <rect x="240" y="160" width="23.2" height="22" rx="3" fill="#0017c1"/>
+      <text class="t" x="271" y="176" font-size="13" font-weight="700">8%</text>
+      <text class="t" x="228" y="216" font-size="13" text-anchor="end">40% 見落とし</text>
+      <text class="t" x="248" y="216" font-size="13" font-weight="700">0%（反応なし）</text>
+    </svg>
+    <figcaption><span class="fig-no">図 9</span>わざと誤りを入れた配線図での、砂糖の予測（MN9 の活動）。偽のつなぎ目は「80% 追加してもまったく変化なし」という結果を 100% として描いた。見落としは脳全体のつなぎ目から一様にランダムに選んで消している。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:33%">わざと入れた誤り</th><th>結果</th><th class="num" style="width:15%">効果が半分に<br>なる量</th></tr></thead>
+      <tbody>
+        <tr><td>つなぎ目の見落とし<br><small>（脳全体で一様に削除）</small></td><td>多くの予測が 14〜24% で半分（aDN1 は 14%、砂糖の MN9 は 21%、aBN1 は 45%）。30% で砂糖の反応は 8%、40% でゼロ</td><td class="num">14〜45%</td></tr>
+        <tr><td>電線の途中切れ<br><small>（入力側・出力側）</small></td><td>見落としと似た傾向（aDN1 は 14〜17%、砂糖の MN9 は 20〜24%、aBN1 は 33〜44% で半分）</td><td class="num">14〜44%</td></tr>
+        <tr><td>偽のつなぎ目<br><small>（ランダムに追加）</small></td><td>80% 足してもまったく変化なし</td><td class="num">届かず</td></tr>
+        <tr><td>アクセルとブレーキの取り違え<br><small>（ランダムに選んだ細胞）</small></td><td>1〜2% なら平均の変化は 15% 以内（ただし 1&nbsp;回ごとには最大 50% ずれる）。8〜18% で 5&nbsp;つ中 4&nbsp;つの予測が半分、20% では 3&nbsp;回中 2&nbsp;回暴走</td><td class="num">8〜18%</td></tr>
+        <tr><td>AI の伝達物質の判定ミス<br><small>（確信度の低い細胞ほど間違える）</small></td><td>実際の誤り率に近い量（約 6% の細胞でアクセルとブレーキが入れ替わる）では、3&nbsp;回中 2&nbsp;回はすべての予測が 20% 以内。残る 1&nbsp;回は暴走。苦味の抑制は 9%、aDN1 は 12%、砂糖の MN9 は 13% で半分（aBN1 は半分まで下がらず）</td><td class="num">9〜13%</td></tr>
+        <tr><td>つなぎ目の強さのばらつき</td><td>小さいばらつきならおおむね保たれるが、中くらいで aDN1 が半分以下になり 3&nbsp;回中 1&nbsp;回暴走、大きいとすべて暴走</td><td class="num">―</td></tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap"><span class="fig-no">表 4</span>誤りの種類ごとの結果。「効果が半分になる量」は、予測ごとに効果が誤りなしの半分になる誤りの量で、予測によって幅がある。AI の判定ミスは、アクセルとブレーキが入れ替わった細胞の割合で示した。「―」はここでは示していないもの。</div>
+  </div>
+
+  <h3>アクセルとブレーキの取り違えは「場所」しだい</h3>
+  <p>ランダムに選んだ細胞のアクセルとブレーキを入れ替えると、1〜2% の細胞なら予測の平均の変化は 15% 以内でしたが、1&nbsp;回ごとに見ると最大 50% ずれることがありました。AI の判定は細胞単位で約 94% 当たる、つまり約 6% の細胞で間違っていると見積もられます。この量の判定ミスを、確信度の低い細胞ほど間違えるように入れると、3&nbsp;回中 2&nbsp;回はすべての予測が 20% 以内に収まりましたが、<strong>残る 1&nbsp;回は暴走</strong>し、aDN1 の反応をほぼ失いました。同じくらいの量（5%）のランダムな取り違えでは暴走は一度も起きませんでした。AI の判定ミスは、平均すればランダムな誤りより悪いわけではありませんが、<strong>暴走を起こしやすい誤り</strong>だといえます。わかったこと②の「増幅器」の 40&nbsp;個（脳全体の約 0.03%）も、そうした例でした。</p>
+
+  <h3>右の砂糖センサーが失敗した理由</h3>
+  <p>モデルの唯一の「つまみ」は、今の配線図に合わせて調整されています。そのため、脳全体に同じくらいずつある見落としは、つまみの調整である程度吸収されうると考えられます。問題になるのは、<strong>特定の回路だけ</strong>見落としが多い場合です。図 7 のように、左の砂糖センサーのつなぎ目だけを消していくと、約 50% を失ったところで反応が半分になります。右の砂糖センサーのつなぎ目は合計で左より 66% 少なく（3,000&nbsp;個 対 8,800&nbsp;個）、この点を超えていました。なお、上で述べた「14〜24% で半分」は脳全体のつなぎ目を一様に消したときの値で、別の実験です。</p>
+
+  <div class="box key">
+    <div class="box-title">解析の「決まりごと」も答えを変える</div>
+    <ul>
+      <li>配線図の解析でよく使われる「つなぎ目が 5&nbsp;個未満の弱いつながりは捨てる」という処理をすると、aDN1 の反応が 83%、aBN1 の反応が 46% 減りました。</li>
+      <li>グルタミン酸をブレーキではなくアクセルとして扱うと、30,128&nbsp;個のニューロンが暴走し、苦味と Ir94e による抑制が逆転しました。</li>
+      <li>脳全体の反応パターンの「似ている度合い」は、予測が崩れてもなだらかにしか下がりません（つなぎ目を 40% 見落としても r&nbsp;=&nbsp;0.80）。全体として似て見えても、個々の予測は壊れていることがあります。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================= 8 ======================= -->
+<section id="s8">
+  <h2><span class="secno">8　わかったこと⑤</span>131&nbsp;種類の感覚でも、左右の答えは食い違った</h2>
+
+  <p>砂糖と触角だけでなく、左右それぞれに 3&nbsp;個以上登録されているすべての種類の感覚ニューロン、<strong>131&nbsp;種類</strong>（におい 53、触覚や振動などの機械感覚 50、味 13、湿度 4、温度 3、光 3、分類なし 5）で鏡像テストを行いました。それぞれの種類を左だけ・右だけで刺激し（1&nbsp;秒に 100&nbsp;回のペース、各 4&nbsp;回）、答えを比べています。</p>
+
+  <h3>暴走は、においの感覚でほぼ必ず起きていた</h3>
+  <p>公開された配線図のままでは、左右どちらかで暴走が起きた種類が <strong>131&nbsp;種類中 60&nbsp;種類（46%）</strong>ありました（刺激したニューロン自身は数えていません）。においの感覚に限ると 53&nbsp;種類中 52&nbsp;種類です。触角葉の 40&nbsp;個をブレーキに直すと 8&nbsp;種類（6%、すべてにおいの感覚）に減り、さらに「同じ種類の細胞は、アクセルかブレーキかを左右あわせた多数決でそろえる」修正を加えると、残りは 1&nbsp;種類だけになりました。この 1&nbsp;種類は光を感じる細胞 R1–6 で、片側だけで 4,000&nbsp;個以上を一度に刺激するため、目の情報を処理する領域が広く反応するのは自然な応答と考えられます。</p>
+
+  <figure>
+    <svg viewBox="0 0 660 320" role="img" aria-label="暴走が起きた感覚の種類は、公開版 60&nbsp;種類、触角葉の 40&nbsp;個を修正すると 8&nbsp;種類、さらに型をそろえると 1&nbsp;種類。答えの一致度は、同じ側を 2&nbsp;回刺激すると 0.99、左と右では 0.58、型をそろえても 0.62">
+      <style>
+        .t { font-family: 'Noto Sans JP','Noto Sans CJK JP',sans-serif; }
+        text.t:not([fill]) { fill: #1a1a1a; }
+      </style>
+      <text class="t" x="0" y="16" font-size="14" font-weight="700">A　暴走が起きた感覚の種類（131&nbsp;種類中。左右どちらかで暴走）</text>
+      <g fill="#f2f2f2">
+        <rect x="240" y="32" width="290" height="22" rx="3"/>
+        <rect x="240" y="68" width="290" height="22" rx="3"/>
+        <rect x="240" y="104" width="290" height="22" rx="3"/>
+      </g>
+      <text class="t" x="228" y="48" font-size="13" text-anchor="end">公開された配線図のまま</text>
+      <rect x="240" y="32" width="132.8" height="22" rx="3" fill="#ce0000"/>
+      <text class="t" x="538" y="48" font-size="13" font-weight="700">60&nbsp;種類（46%）</text>
+      <text class="t" x="228" y="84" font-size="13" text-anchor="end">触角葉の 40&nbsp;個を修正</text>
+      <rect x="240" y="68" width="17.7" height="22" rx="3" fill="#ce0000"/>
+      <text class="t" x="538" y="84" font-size="13" font-weight="700">8&nbsp;種類（6%）</text>
+      <text class="t" x="228" y="120" font-size="13" text-anchor="end">＋同じ種類の細胞で型をそろえる</text>
+      <rect x="240" y="104" width="3" height="22" fill="#ce0000"/>
+      <text class="t" x="538" y="120" font-size="13" font-weight="700">1&nbsp;種類</text>
+      <text class="t" x="530" y="142" font-size="11" text-anchor="end" fill="#767676">灰色の帯の全体 ＝ 131&nbsp;種類</text>
+
+      <text class="t" x="0" y="180" font-size="14" font-weight="700">B　答えの一致度（相関係数 r の中央値。1 で完全に一致）</text>
+      <text class="t" x="228" y="212" font-size="13" text-anchor="end">同じ側を 2&nbsp;回刺激</text>
+      <rect x="240" y="196" width="287" height="22" rx="3" fill="#999999"/>
+      <text class="t" x="538" y="212" font-size="13" font-weight="700">0.99</text>
+      <text class="t" x="228" y="248" font-size="13" text-anchor="end">左と右</text>
+      <rect x="240" y="232" width="168.2" height="22" rx="3" fill="#0017c1"/>
+      <text class="t" x="416" y="248" font-size="13" font-weight="700">0.58</text>
+      <text class="t" x="228" y="284" font-size="13" text-anchor="end">左と右（型をそろえた後）</text>
+      <rect x="240" y="268" width="179.8" height="22" rx="3" fill="#4979f5"/>
+      <text class="t" x="428" y="284" font-size="13" font-weight="700">0.62</text>
+      <line x1="530" y1="190" x2="530" y2="296" stroke="#767676" stroke-width="1" stroke-dasharray="4 3"/>
+      <text class="t" x="530" y="312" font-size="11" text-anchor="middle" fill="#767676">1.0</text>
+      <text class="t" x="240" y="312" font-size="11" text-anchor="middle" fill="#767676">0</text>
+    </svg>
+    <figcaption><span class="fig-no">図 10</span>131&nbsp;種類の感覚ニューロンでの鏡像テスト。A：暴走が起きた種類の数（刺激したニューロン自身は数えない）。B：脳のどの種類の細胞がどれだけ反応したかを比べた一致度（触角葉の修正後、暴走しなかった 118&nbsp;種類の中央値。型をそろえた比較は 115&nbsp;種類）。</figcaption>
+  </figure>
+
+  <h3>暴走を除いても、左と右の答えは一致しなかった</h3>
+  <p>暴走しなかった 118&nbsp;種類について、脳のどの種類の細胞がどれだけ反応するかを左右で比べました（触角葉の修正後）。同じ側を 2&nbsp;回刺激した場合（偶然による違いだけ）の一致度は中央値 r&nbsp;=&nbsp;0.99 とほぼ完全でしたが、<strong>左と右では r&nbsp;=&nbsp;0.58</strong> しか一致しませんでした。118&nbsp;種類のうち <strong>85&nbsp;種類</strong>で、左右の一致度が「同じ側の繰り返し」の最も低い値よりも低くなっています。アクセルかブレーキかを細胞の種類ごとにそろえても、一致度は 0.62 と、ほとんど改善しませんでした。</p>
+  <p>この食い違いは、刺激したセンサー自身のつなぎ目の数の左右差とも、アクセル・ブレーキの判定の左右差とも関係がありませんでした。つまり、ずれは<strong>もっと下流の回路</strong>で生じています。たとえばにおいの感覚では、右のセンサーからの入力が、右よりも反対側の左の触角葉の局所ニューロンを強く動かしていました（刺激した側に残る活動の割合の中央値は、左から刺激すると 0.53、右からだと 0.45）。触覚などの機械感覚では、このような偏りは見られませんでした（左から 0.87、右から 0.89）。</p>
+</section>
+
+<!-- ======================= 9 ======================= -->
+<section id="s9">
+  <h2><span class="secno">9</span>なぜ大事なのか</h2>
+
+  <h3>配線図シミュレーションを信じる前の「健康診断」になる</h3>
+  <p>配線図から脳を動かすシミュレーションは、実験の前に「どのニューロンが働きそうか」を予想する道具として期待されています。しかし今回、<strong>左側だけで試していれば 6 / 6 で合格し、問題にはまったく気づけませんでした</strong>。同じ配線図でも、刺激する場所によっては、地図の左右の違いが答えを大きく変えてしまいます。刺激するニューロンの選び方によっても、答えが変わることがわかりました。</p>
+
+  <h3>鏡像テストは、ほぼ「ただ」でできる</h3>
+  <p>鏡像テストに必要なのは、同じ実験を反対側からもう一度計算することだけです。新しい動物実験も、追加の仮定もいりません。左右のある脳なら、ほかの動物の配線図でも使えます。</p>
+
+  <h3>地図のどこを見直すべきかを教えてくれる</h3>
+  <p>左右で答えが食い違った場所は、配線図の見直し候補になります。今回は、右の味覚センサーのつなぎ目、aBN1 への入力、触角葉に多くつながる右の砂糖センサー 1&nbsp;個、触角葉の 40&nbsp;個という、具体的な見直し候補が見つかりました。131&nbsp;種類の感覚で見ると、左右の食い違いは砂糖と触角に限らず広く見られ、見直すべき場所はまだ多く残っていそうです。配線図は改訂が続けられているので、こうした手がかりは次の版を良くするのに役立ちます。</p>
+
+  <h3>地図づくりでは「見落とし」を減らすことが大事</h3>
+  <p>わざと誤りを入れる実験から、存在しないつなぎ目が紛れ込む誤りよりも、<strong>本物のつなぎ目の見落とし</strong>のほうが、シミュレーションの答えをずっと大きく変えることがわかりました。シミュレーションに使う配線図を作るときは、「余計な道」を消すことより「道の見落とし」を減らすことを優先する理由になります。「弱いつながりは捨てる」といった、よく使われる解析上の決まりごとにも注意が必要です。</p>
+
+  <h3>「アクセルかブレーキか」の推定は、特に慎重に</h3>
+  <p>ランダムに起きる取り違えなら 1〜2% の細胞までは予測はほとんど変わりませんが、今回の 40&nbsp;個のように特定の場所で起きると、ごく少数でも脳全体が暴走します。AI の判定ミスを実際の量だけ入れても、3&nbsp;回に 1&nbsp;回は暴走しました。AI による伝達物質の推定は便利ですが、シミュレーションに使うときは「確定した事実」ではなく「確かめるべき仮説」として扱う必要があります。</p>
+</section>
+
+<!-- ======================= 10 ======================= -->
+<section id="s10">
+  <h2><span class="secno">10</span>この研究でわからないこと・限界</h2>
+  <div class="box caution">
+    <ul>
+      <li><strong>動物実験はしていません。</strong>すべてコンピューターの中の計算です。右のハエで本当に反応が違うかどうかは調べていません。</li>
+      <li><strong>「修正」はモデル上の仮の修理です。</strong>つながりの強さを掛け算で補っただけで、見落とされたつなぎ目を実際に見つけたわけではありません。地図が本当に間違っているかの最終確認には、元の電子顕微鏡画像の見直しや実験が必要です。</li>
+      <li><strong>どちらの側の地図が正しいかは、わかりません。</strong>左右差の大きさ、触角の JO では差がないこと、これまでの生物学の知識などから、右側の作成ミスの可能性が高いと考えていますが、生物としての左右差がないとは言い切れません。修正は左側を基準にしたもので、「この違いがあれば右の失敗を説明できる」ことを示しているだけです。</li>
+      <li><strong>結果は刺激のしかたにも左右されます。</strong>刺激するニューロンを種類単位で選んだ私たちの方法と、Shiu らが選んだ組とでは、右での結果が変わりました。</li>
+      <li><strong>モデル自体が単純です。</strong>すべてのニューロンを同じルールで動かし、アクセルかブレーキかは推定された伝達物質だけで決めています。実際のセロトニンの働きはもっと複雑で、単純なアクセルではありません。</li>
+      <li><strong>説明できていない部分があります。</strong>反対側の aDN1・aDN2 の予測は、修正後も戻りませんでした。</li>
+      <li><strong>確かめた範囲は限られています。</strong>使ったのは 1&nbsp;匹のハエから作られた 1&nbsp;つの配線図と、1&nbsp;つのモデルです。別のハエから作られた配線図でも同じことが起きるかは、まだ調べていません。</li>
+      <li><strong>食い違いの場所はまだ絞り込めていません。</strong>131&nbsp;種類の感覚で見つかった左右の食い違いは、刺激したセンサーより下流の回路で生じていることまではわかりましたが、どこのどんな誤りなのかは特定できていません。</li>
+      <li><strong>誤りを入れる実験の範囲も限られています。</strong>調べたのは左側の 5&nbsp;つの予測についてで、誤りの入れ方もランダムなものに限られます。</li>
+      <li><strong>一日で行った研究です。</strong>第三者によるチェックを受けて改訂しましたが、学術誌の正式な査読はまだです。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================= 11 ======================= -->
+<section id="s11">
+  <h2><span class="secno">11</span>用語集</h2>
+  <dl class="glossary">
+    <div><dt>ニューロン<span class="yomi">神経細胞</span></dt><dd>電気の信号をやりとりする、脳の部品。ハエの脳には約 14&nbsp;万個ある。</dd></div>
+    <div><dt>シナプス<span class="yomi">つなぎ目</span></dt><dd>ニューロンどうしが信号を受け渡す接点。同じ 2&nbsp;つのニューロンの間に何か所もあることがあり、多いほど強く伝わる。</dd></div>
+    <div><dt>コネクトーム<span class="yomi">配線図</span></dt><dd>脳のすべてのニューロンと、そのつながりを書き出した地図。電子顕微鏡の画像をもとに作られる。</dd></div>
+    <div><dt>FlyWire<span class="yomi">フライワイヤー</span></dt><dd>ハエの脳全体の配線図を作った国際プロジェクト。この研究ではその第 783 版を使った。</dd></div>
+    <div><dt>スパイク・Hz<span class="yomi">ヘルツ</span></dt><dd>スパイクはニューロンが出す一瞬の電気信号（「パチッ」）。Hz は 1&nbsp;秒あたりの回数で、活動の強さを表す。</dd></div>
+    <div><dt>興奮と抑制<span class="yomi">アクセルとブレーキ</span></dt><dd>相手のニューロンをパチッとさせやすくするのが興奮（アクセル）、させにくくするのが抑制（ブレーキ）。</dd></div>
+    <div><dt>神経伝達物質</dt><dd>ニューロンがつなぎ目で出す化学物質。モデルでは、その種類でアクセルかブレーキかを決める（GABA・グルタミン酸はブレーキ、それ以外はアクセル）。</dd></div>
+    <div><dt>セロトニン</dt><dd>神経伝達物質の一つ。今回のモデルではアクセルとして扱われる。画像からの AI 推定が特に難しい物質とされる。</dd></div>
+    <div><dt>口吻・MN9<span class="yomi">こうふん・エムエヌナイン</span></dt><dd>口吻はハエのストローのような口。MN9 は口吻を伸ばす筋肉に指令を出す運動ニューロン。</dd></div>
+    <div><dt>味覚ニューロン<span class="yomi">GRN</span></dt><dd>砂糖、苦味などを感じるセンサー役のニューロン。この資料では「砂糖センサー」などと呼んでいる。</dd></div>
+    <div><dt>ジョンストン器官・aBN1・aDN<span class="yomi">JO</span></dt><dd>JO は触角の付け根にあり、触角の揺れを感じる器官。aBN1・aDN1・aDN2 は触角の掃除（グルーミング）にかかわるニューロン。</dd></div>
+    <div><dt>触角葉</dt><dd>においの情報を最初に処理する脳の中継所。中の「局所ニューロン」は多くがブレーキ役と考えられている。</dd></div>
+    <div><dt>暴走</dt><dd>興奮が次々に飛び火して、脳の広い範囲のニューロンが発火し続ける状態。この研究では 2,000&nbsp;個を超えて発火した状態と定義した。</dd></div>
+    <div><dt>鏡像テスト</dt><dd>左右がほぼ鏡写しの脳で、同じ実験を左右それぞれから行い、答えが一致するかを確かめる方法。この研究の中心となる考え方。</dd></div>
+    <div><dt>ベンチマーク</dt><dd>答え合わせ用の課題。ここでは、Shiu らが示し、実際のハエの実験でも確かめられた 6&nbsp;つの予測のこと。</dd></div>
+  </dl>
+</section>
+
+<!-- ======================= 12 ======================= -->
+<section id="s12">
+  <h2><span class="secno">12</span>よくある質問</h2>
+
+  <div class="faq">
+    <div class="q"><span class="mark">Q</span><span>本物のハエを使った実験ですか？</span></div>
+    <div class="a"><span class="mark">A</span><p>いいえ。すべてコンピューターの中の計算です。公開されている配線図と、公開されているモデルを使いました。</p></div>
+  </div>
+
+  <div class="faq">
+    <div class="q"><span class="mark">Q</span><span>右の脳に問題のあるハエだった、ということですか？</span></div>
+    <div class="a"><span class="mark">A</span><p>おそらく違います。問題は、ハエの脳そのものより、そこから作られた「地図」の左右の違いにあると考えています。左から同じ数だけつなぎ目を抜くと左でも同じように失敗することが、その根拠の一つです。ただし、どちらの側の地図が正しいのかは本当はわからず、動物で確かめたわけでもありません。</p></div>
+  </div>
+
+  <div class="faq">
+    <div class="q"><span class="mark">Q</span><span>元の研究（Shiu らのモデル）は間違っていたのですか？</span></div>
+    <div class="a"><span class="mark">A</span><p>左からの結果は、私たちの計算でもそのまま再現されました。また、Shiu らが選んだ右の砂糖センサー 9&nbsp;個を刺激すると、暴走は起きず、強い刺激では口吻の指令も出ました。「配線図から多くの反応を予測できる」という元の研究の結論を否定するものではありません。わかったのは、地図の左右の違いや、刺激するニューロンの選び方によって、答えが大きく変わる場面がある、ということです。</p></div>
+  </div>
+
+  <div class="faq">
+    <div class="q"><span class="mark">Q</span><span>なぜ今まで気づかれなかったのですか？</span></div>
+    <div class="a"><span class="mark">A</span><p>これまでのシミュレーションは、ほとんどが片側だけを刺激していたからです。片側だけなら、すべての予測が合格していました。反対側から同じことをしてみる、という単純な確認が、意外と行われていなかったのです。</p></div>
+  </div>
+
+  <div class="faq">
+    <div class="q"><span class="mark">Q</span><span>配線図を作った人たちのミスということですか？</span></div>
+    <div class="a"><span class="mark">A</span><p>責めるような話ではありません。数千万個のつなぎ目を、自動の画像解析と大勢の人の手作業で調べる巨大な作業なので、ある程度の誤りは避けられず、作成者たち自身もそのことを報告して改訂を続けています。この研究は、どこを優先して見直すとよいかの手がかりを示すものです。</p></div>
+  </div>
+
+  <div class="faq">
+    <div class="q"><span class="mark">Q</span><span>人間の脳の研究にも関係がありますか？</span></div>
+    <div class="a"><span class="mark">A</span><p>直接の関係はありません。ただ、マウスや人の脳の一部でも配線図づくりが進んでおり、いずれ配線図から脳の働きを予測する研究が広がると考えられます。そのとき、「左右で答え合わせをする」という今回のチェック方法は、左右のある脳ならそのまま使えます。</p></div>
+  </div>
+</section>
+
+<!-- ======================= 13 ======================= -->
+<section id="s13">
+  <h2><span class="secno">13</span>3&nbsp;分で人に説明するなら</h2>
+  <p class="small">話し言葉の原稿です（約 3〜4 分）。そのまま読み上げられるように書いています。</p>
+
+  <div class="script">
+    <p><span class="cue">つかみ</span>ハエの脳の「配線図」の話をさせてください。ショウジョウバエという小さなハエの脳には、約 14&nbsp;万個の神経細胞があります。その細胞どうしのつなぎ目、約 5,450&nbsp;万か所をほぼすべて書き出した「配線図」が、2024 年に発表されました。</p>
+    <p>さらに別の研究チームが、この配線図をそのままコンピューターに入れて、脳を動かしてみました。すると、脳の左側にある「甘さを感じる細胞」を刺激すると、口を伸ばして飲もうとする指令が出ました。本物のハエと同じです。配線図だけで脳の働きが予測できるかもしれない、と注目されました。</p>
+    <p><span class="cue">問い</span>私たちが試したのは、とても単純なことです。ハエの脳は、左右がほぼ鏡写しです。だったら、同じ実験を右側からやっても、同じ答えになるはずですよね。</p>
+    <p><span class="cue">結果</span>ところが、答えは違いました。右から刺激すると、確かめた 6&nbsp;つの予測がすべて外れました。口を伸ばす指令は出ず、代わりに脳の広い範囲で細胞が次々に興奮する「暴走」が起きたんです。</p>
+    <p><span class="cue">原因</span>調べてみると、原因はハエの脳ではなく、配線図の左右の違いでした。おそらく地図の作成ミスです。一つめ、右側の甘さセンサーのつなぎ目が、左の半分ほどしかなかった。実際、左から同じだけつなぎ目を抜くと、左でも失敗します。二つめ、触角の掃除にかかわる細胞への入力が、右では 4&nbsp;分の 1 しかなかった。三つめが暴走です。暴走には二つの条件がそろう必要がありました。「入口」は、右の甘さセンサーのうちたった 1&nbsp;個が、においの中継所に多くつながっていたこと。「増幅器」は、本来ブレーキ役と考えられる 40&nbsp;個の細胞が、AI の判定で「セロトニン」とされ、モデルではアクセルとして扱われていたこと。どちらか一方を取り除くだけで、暴走は消えました。右を左に合わせてモデルの中で直すと、6&nbsp;つのうち 4&nbsp;つの予測が元に戻りました。</p>
+    <p><span class="cue">さらに</span>地図にわざと誤りを入れる実験もしました。存在しないつなぎ目を 8&nbsp;割増やしても答えは変わらないのに、本物のつなぎ目を脳全体で 2&nbsp;割前後見落とすだけで、多くの予測が半分になりました。地図づくりでは、余計な線よりも見落としを減らすほうが大事だということです。また、131&nbsp;種類の感覚で同じ左右の比較をすると、暴走しなかった種類でも、多くで左と右の答えが食い違っていました。</p>
+    <p><span class="cue">意味</span>言いたいことは二つです。一つは、配線図からのシミュレーションは強力だけれど、地図の左右の違い、おそらく作成ミスで、答えが大きく変わることがある、ということ。もう一つは、左右で同じ実験をして答え合わせをする「鏡像テスト」は、追加の実験なしにすぐできるチェック方法だ、ということです。左右で答えが食い違う場所は、地図のどこを見直すべきかも教えてくれます。</p>
+    <p><span class="cue">ただし</span>これはすべてコンピューターの中の研究で、動物での実験はしていません。どちらの側の地図が正しいのか、本当に地図が間違っているのかの最終確認は、これからです。</p>
+  </div>
+</section>
+
+<div class="footer-note">
+  <p>もとになった研究：Kazushi Takehana「Mirror-image tests reveal hemispheric asymmetries that alter whole-brain connectome simulations」（論文草稿、2026 年 10 月 27 日）。使用したデータとモデル：FlyWire 配線図 第 783 版（Dorkenwald ら 2024、Schlegel ら 2024、Nature）、ハエ全脳モデル（Shiu ら 2024、Nature）。解析・シミュレーション・原稿作成には AI アシスタント（Claude）の補助を使っています。図 3・図 5 は研究紹介動画の画面から作成しました。</p>
+</div>
+
+</main>
+</body>
+</html>

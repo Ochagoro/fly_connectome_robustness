@@ -1,0 +1,41 @@
+/* Manuscript style modelled on the Nature submission format:
+   single column, generous line spacing, numbered lines, Arial-like text,
+   figures with bold "Fig. n |" legends, Methods and references at the end. */
+@page { size: A4; margin: 22mm 22mm 22mm 26mm; }
+:root {
+  --ink: #111111; --ink2: #444444; --rule: #bdbdbd;
+}
+html { font-family: "Liberation Sans", Arial, Helvetica, sans-serif; color: var(--ink); background: #fff; }
+body { margin: 0; font-size: 10.5pt; line-height: 1.62; counter-reset: line; }
+h1 { font-size: 17pt; line-height: 1.25; margin: 0 0 10pt; font-weight: 700; }
+h2 { font-size: 11.5pt; margin: 18pt 0 6pt; font-weight: 700; page-break-after: avoid; }
+h3 { font-size: 10.5pt; margin: 12pt 0 4pt; font-weight: 700; page-break-after: avoid; }
+p { margin: 0 0 7pt; text-align: justify; hyphens: auto; }
+.authors { font-size: 10.5pt; margin-bottom: 4pt; }
+.affil { font-size: 9pt; color: var(--ink2); margin-bottom: 14pt; }
+.summary { font-weight: 700; }
+.small { font-size: 9pt; color: var(--ink2); }
+sup { font-size: 70%; line-height: 0; }
+.ln p, .ln li { position: relative; }
+figure { margin: 12pt 0 14pt; page-break-inside: avoid; }
+figure img { width: 100%; display: block; }
+figure.single img { width: 52%; }
+figcaption { font-size: 9pt; line-height: 1.45; margin-top: 6pt; text-align: justify; }
+figcaption b.fig { font-weight: 700; }
+table { border-collapse: collapse; font-size: 9pt; margin: 6pt 0 10pt; width: 100%; }
+th, td { border-bottom: 0.5pt solid var(--rule); padding: 3pt 5pt; text-align: left; vertical-align: top; }
+th { border-bottom: 1pt solid var(--ink); font-weight: 700; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+ol.refs { font-size: 9pt; line-height: 1.45; padding-left: 18pt; }
+ol.refs li { margin-bottom: 3pt; }
+.eq { text-align: center; margin: 6pt 0 8pt; font-style: italic; }
+.pagebreak { page-break-before: always; }
+.keypoints { border-top: 1pt solid var(--ink); border-bottom: 1pt solid var(--ink); padding: 6pt 0; margin: 10pt 0 14pt; font-size: 9.5pt; }
+.keypoints ul { margin: 2pt 0 0 0; padding-left: 16pt; }
+.mono { font-family: "Liberation Mono", monospace; font-size: 9pt; }
+/* line numbers in the margin, as requested for Nature submissions */
+.numbered p, .numbered figcaption { counter-increment: line; position: relative; }
+.numbered p::before {
+  content: counter(line); position: absolute; left: -24pt; width: 18pt; text-align: right;
+  font-size: 7pt; color: #9a9a9a; top: 0.25em;
+}

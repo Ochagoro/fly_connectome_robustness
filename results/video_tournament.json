@@ -1,0 +1,82 @@
+[
+ {
+  "key": "e0",
+  "label": "誤りなし",
+  "model": "intact",
+  "level": 0.0,
+  "score": 1.0,
+  "runaway": false,
+  "run_k": 0,
+  "run_n": 3
+ },
+ {
+  "key": "e1",
+  "label": "偽のシナプスを 80% 追加",
+  "model": "false_pos",
+  "level": 0.8,
+  "score": 0.9996555287633484,
+  "runaway": false,
+  "run_k": 0,
+  "run_n": 3
+ },
+ {
+  "key": "e2",
+  "label": "シナプスを 20% 見逃す",
+  "model": "deletion",
+  "level": 0.2,
+  "score": 0.522562866000689,
+  "runaway": false,
+  "run_k": 0,
+  "run_n": 3
+ },
+ {
+  "key": "e3",
+  "label": "シナプスを 40% 見逃す",
+  "model": "deletion",
+  "level": 0.4,
+  "score": 0.002411298656562177,
+  "runaway": false,
+  "run_k": 0,
+  "run_n": 3
+ },
+ {
+  "key": "e4",
+  "label": "2% の細胞でアクセル⇄ブレーキ",
+  "model": "sign_flip",
+  "level": 0.02,
+  "score": 0.8797795384085428,
+  "runaway": false,
+  "run_k": 0,
+  "run_n": 3
+ },
+ {
+  "key": "e5",
+  "label": "20% の細胞でアクセル⇄ブレーキ",
+  "model": "sign_flip",
+  "level": 0.2,
+  "score": 0.4195659662418188,
+  "runaway": true,
+  "run_k": 2,
+  "run_n": 3
+ },
+ {
+  "key": "e6",
+  "label": "伝達物質を現実的な率（6%）で誤判定",
+  "model": "nt_resample",
+  "level": 0.25,
+  "score": 0.9569410954185327,
+  "runaway": false,
+  "run_k": 1,
+  "run_n": 3
+ },
+ {
+  "key": "e7",
+  "label": "シナプスの強さが大きくバラつく",
+  "model": "weight_noise",
+  "level": 1.0,
+  "score": 0.7106441612125387,
+  "runaway": true,
+  "run_k": 3,
+  "run_n": 3
+ }
+]
