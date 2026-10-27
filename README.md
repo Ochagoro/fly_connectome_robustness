@@ -21,7 +21,7 @@
 | ① 論文（日本語版） | [paper/paper_ja.pdf](paper/paper_ja.pdf) |
 | ② 発表資料（10 分＋Appendix、デジタル庁デザインシステム準拠） | [slides/slides.pdf](slides/slides.pdf) |
 | ③ 予備知識なしで読める解説 | [explainer/explainer.pdf](explainer/explainer.pdf)（元: [explainer/explainer.html](explainer/explainer.html)。Web 版は [explainer/web/index.html](explainer/web/index.html)） |
-| ④ 研究動画（日本語字幕） | [video/fly_mirror_test_ja.mp4](video/fly_mirror_test_ja.mp4) |
+| ④ 研究動画（日本語字幕＋日本語ナレーション、3 分 42 秒。音声は VOICEVOX:青山龍星） | [video/fly_mirror_test_ja.mp4](video/fly_mirror_test_ja.mp4)、ナレーション原稿 [video/narration_ja.md](video/narration_ja.md) |
 | 発表原稿（10 分、想定問答つき） | [slides/script.md](slides/script.md) |
 | 図（Nature 形式、PDF/SVG/PNG） | [figures/](figures/) |
 | 数値のまとめ | [notes/results_summary.md](notes/results_summary.md) |
@@ -72,9 +72,12 @@ cd src
 
 GPU（CUDA）が必要です。RTX 5070 Ti で全実験が約 1.5 時間です。PDF は `src/topdf.sh 入力.html 出力.pdf`（Google Chrome のヘッドレス印刷）で作ります。
 
+動画のナレーションは `video/compose.py --narration`（原稿の書き出し）→ `video/tts.py voicevox`（VOICEVOX ENGINE を 127.0.0.1:50021 で起動しておく。行ごとに熱血・しっとりなどのスタイルと抑揚を指定し、文ごとに合成して「。」で間を取る）→ `video/compose.py`（声の長さに合わせて場面を延ばし、音声を AAC で多重化）で作ります。VOICEVOX の音声を使う動画には「VOICEVOX:青山龍星」のクレジットが必要です（動画の最後に表示。企業が関わる利用では事前確認が必要）。
+
 ## 使ったデータとコード
 
 - FlyWire v783 の結合表と Shiu らのモデル: https://github.com/philshiu/Drosophila_brain_model
 - FlyWire の細胞注釈: https://github.com/flyconnectome/flywire_annotations
 - ハエの体: NeuroMechFly v2（flygym）
+- ナレーション: VOICEVOX ENGINE 0.25.2、音声ライブラリ「青山龍星」
 - デジタル庁デザインシステムのトークン（MIT License）: https://github.com/digital-go-jp/design-tokens
